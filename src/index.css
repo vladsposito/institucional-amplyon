@@ -1,0 +1,11 @@
+@import 'tailwindcss';
+
+@import '@fontsource-variable/bricolage-grotesque';
+@import '@fontsource-variable/syne';
+@import '@fontsource-variable/dm-sans';
+@import '@fontsource/dm-mono/400.css';
+@import '@fontsource/dm-mono/500.css';
+
+@theme {
+  /* Os tokens do design system (cores, fontes, espaçamentos) entram na próxima etapa. */
+}
