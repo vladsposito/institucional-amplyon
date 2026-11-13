@@ -1,11 +1,286 @@
 @import 'tailwindcss';
 
-@import '@fontsource-variable/bricolage-grotesque';
+@import '@fontsource-variable/bricolage-grotesque/opsz.css';
+@import '@fontsource-variable/dm-sans/opsz.css';
 @import '@fontsource-variable/syne';
-@import '@fontsource-variable/dm-sans';
-@import '@fontsource/dm-mono/400.css';
 @import '@fontsource/dm-mono/500.css';
 
-@theme {
-  /* Os tokens do design system (cores, fontes, espaçamentos) entram na próxima etapa. */
+/*
+ * Tokens do design system Amplyon (Figma B6YGuSp9kZKYE6QV6kSYYd).
+ * `static` garante que todas as variáveis sejam emitidas, mesmo as usadas só via var().
+ * Tema único: escuro (a faixa "mist" de Diferenciais é uma seção do design, não um modo).
+ */
+@theme static {
+  --color-*: initial;
+  --color-ground: #0a2422;
+  --color-surface: #12302d;
+  --color-line: #24423f;
+  --color-line-strong: #5f8a84;
+  --color-ink: #e4fbf8;
+  --color-ink-muted: #9dbdb8;
+  --color-amp: #ffc94a;
+  --color-on-amp: #0a2422;
+  --color-pine: #2c5d57;
+  --color-teal: #3a766f;
+  --color-sage: #7fbfb6;
+  --color-mint: #d4fbf6;
+  --color-mist: #f2fbfa;
+  --color-amp-soft: #1b3a37;
+  --color-rise: #8ee07a;
+  /* aliases pedidos no brief */
+  --color-pulse: var(--color-mint);
+  --color-on-pulse: var(--color-on-amp);
+  --color-link: var(--color-sage);
+  --color-focus: var(--color-amp);
+
+  /* Fontes (genérico só como rede de segurança de carregamento) */
+  --font-*: initial;
+  --font-display:
+    'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-logo: 'Syne Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'DM Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, monospace;
+
+  /* Raios */
+  --radius-*: initial;
+  --radius-sm: 6px;
+  --radius-md: 14px;
+  --radius-pill: 999px;
+  --radius-panel: 26px;
+  --radius-bubble: 18px;
+  --radius-tail: 4px;
+  --radius-bar-mobile: 12px;
+
+  /* telas muito estreitas: abaixo disso o botão "Orçamento" sai da barra (continua no menu) */
+  --breakpoint-xs: 22.5rem;
+
+  --blur-*: initial;
+  --blur-glass: 10px;
+
+  /* Text styles (tamanho / line-height / tracking). Família e peso entram nos utilitários type-*. */
+  --text-*: initial;
+  --text-display-xl: 4.5rem;
+  --text-display-xl--line-height: 4.5rem;
+  --text-display-xl--letter-spacing: -0.03em;
+  --text-display-xl-mobile: 4.25rem;
+  --text-display-xl-mobile--line-height: calc(67 / 68);
+  --text-display-xl-mobile--letter-spacing: -0.03em;
+  --text-display: 3rem;
+  --text-display--line-height: 3.25rem;
+  --text-display--letter-spacing: -0.02em;
+  --text-display-mobile: 2rem;
+  --text-display-mobile--line-height: 2.25rem;
+  --text-display-mobile--letter-spacing: -0.02em;
+  --text-display-sm: 2.25rem;
+  --text-display-sm--line-height: 2.5rem;
+  --text-display-sm--letter-spacing: -0.02em;
+  --text-display-sm-mobile: 1.5rem;
+  --text-display-sm-mobile--line-height: 1.75rem;
+  --text-display-sm-mobile--letter-spacing: -0.02em;
+  --text-heading: 1.75rem;
+  --text-heading--line-height: 2.125rem;
+  --text-heading--letter-spacing: -0.01em;
+  --text-heading-mobile: 1.375rem;
+  --text-heading-mobile--line-height: 1.75rem;
+  --text-heading-mobile--letter-spacing: -0.01em;
+  --text-body-xl: 1.5rem;
+  --text-body-xl--line-height: 2rem;
+  --text-body-xl--letter-spacing: -0.01em;
+  --text-body-xl-mobile: 1.25rem;
+  --text-body-xl-mobile--line-height: 1.75rem;
+  --text-body-xl-mobile--letter-spacing: -0.01em;
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.75rem;
+  --text-title: 1.25rem;
+  --text-title--line-height: 1.75rem;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5rem;
+  --text-button: 1rem;
+  --text-button--line-height: 1;
+  --text-button-sm: 0.9375rem;
+  --text-button-sm--line-height: 1;
+  --text-label: 0.75rem;
+  --text-label--line-height: 1rem;
+  --text-label--letter-spacing: 0.08em;
+  --text-metric: 2rem;
+  --text-metric--line-height: 2.25rem;
+  --text-metric--letter-spacing: -0.02em;
+  --text-step-mobile: 1.125rem;
+  --text-step-mobile--line-height: 1.25rem;
+  --text-step-mobile--letter-spacing: 0.08em;
+  --text-logo: 1.375rem;
+  --text-logo--line-height: 1;
+  --text-logo--letter-spacing: -0.02em;
+  --text-logo-sm: 0.99025rem;
+  --text-logo-sm--line-height: 1;
+  --text-logo-sm--letter-spacing: -0.02em;
+
+  /* Dimensões */
+  --container-content: 1160px;
+  --max-w-column: 640px;
+  --height-control: 48px;
+  --height-control-sm: 38px;
+  --height-topbar: 90px;
+  --height-topbar-mobile: 64px;
+  --compare-col: 460px;
+  --bubble-max-desktop: 356px;
+  --bubble-max-mobile: 272px;
+  --border-badge: 1.5px;
+  --opacity-glass: 78%;
+  --opacity-scrim: 60%;
+  --gap-title-line3-desktop: 18px;
+  --gap-title-line3-mobile: 16px;
+  --scribble-overlap-desktop: 6px;
+  --scribble-overlap-mobile: 4px;
+  --scribble-h-desktop: 14px;
+  --scribble-h-mobile: 16px;
+  /* largura do título mobile acompanha a tela: 68px em 390 (358 úteis) */
+  --fluid-display-xl-mobile: calc((100vw - 2 * var(--gutter)) * 0.18994);
+
+  /* Proporção das barras da escada da marca (largura / altura) */
+  --stair-ratio-1: 280 / 90;
+  --stair-ratio-2: 280 / 160;
+  --stair-ratio-3: 280 / 240;
+  --stair-ratio-4: 280 / 320;
+  --stair-ratio-m-1: 91.5 / 60;
+  --stair-ratio-m-2: 91.5 / 100;
+  --stair-ratio-m-3: 91.5 / 145;
+  --stair-ratio-m-4: 91.5 / 190;
+
+  /* Símbolo do logo, em em (base = tamanho do texto do logo, 22px) */
+  --logo-bar-w: calc(5em / 22);
+  --logo-bar-h-1: calc(5em / 22);
+  --logo-bar-h-2: calc(8em / 22);
+  --logo-bar-h-3: calc(12em / 22);
+  --logo-bar-h-4: calc(16em / 22);
+  --logo-bar-gap: calc(2em / 22);
+  --logo-bar-radius: calc(1.5em / 22);
+  --logo-symbol-pb: calc(3em / 22);
+  --logo-gap: calc(10em / 22);
+}
+
+/* Margens laterais: dependem de media query, então ficam em :root (não no @theme). */
+:root {
+  --gutter: 16px;
+  --container-page: calc(var(--container-content) + 2 * var(--gutter));
+  --container-column: calc(var(--max-w-column) + 2 * var(--gutter));
+  /* ponto médio entre o círculo (3.5rem) e o próximo círculo (coluna + gap 1.5rem) do Process */
+  --seal-mid: calc((var(--spacing) * 14 + 100% + var(--spacing) * 6) / 2);
+}
+
+@media (width >= 48rem) {
+  :root {
+    --gutter: 32px;
+  }
+}
+
+@utility type-display-xl {
+  @apply font-display text-display-xl font-extrabold;
+}
+@utility type-display-xl-mobile {
+  @apply font-display font-extrabold;
+  font-size: min(var(--text-display-xl-mobile), var(--fluid-display-xl-mobile));
+  line-height: var(--text-display-xl-mobile--line-height);
+  letter-spacing: var(--text-display-xl-mobile--letter-spacing);
+}
+@utility type-display {
+  @apply font-display text-display font-extrabold;
+}
+@utility type-display-mobile {
+  @apply font-display text-display-mobile font-extrabold;
+}
+@utility type-display-sm {
+  @apply font-display text-display-sm font-extrabold;
+}
+@utility type-display-sm-mobile {
+  @apply font-display text-display-sm-mobile font-extrabold;
+}
+@utility type-heading {
+  @apply font-display text-heading font-bold;
+}
+@utility type-heading-mobile {
+  @apply font-display text-heading-mobile font-bold;
+}
+@utility type-body-xl {
+  @apply font-sans text-body-xl font-medium;
+}
+@utility type-body-xl-mobile {
+  @apply font-sans text-body-xl-mobile font-medium;
+}
+@utility type-body-lg {
+  @apply font-sans text-body-lg font-medium;
+}
+@utility type-title {
+  @apply font-sans text-title font-bold;
+}
+@utility type-body {
+  @apply font-sans text-body font-normal;
+}
+@utility type-button {
+  @apply font-sans text-button font-bold;
+}
+@utility type-button-sm {
+  @apply font-sans text-button-sm font-bold;
+}
+@utility type-label {
+  @apply font-mono text-label font-medium uppercase;
+}
+@utility type-metric {
+  @apply font-mono text-metric font-medium;
+}
+@utility type-step-mobile {
+  @apply font-mono text-step-mobile font-medium uppercase;
+}
+@utility type-logo {
+  @apply font-logo text-logo font-extrabold;
+}
+@utility type-logo-sm {
+  @apply font-logo text-logo-sm font-extrabold;
+}
+
+@utility bg-chat-desktop {
+  background-image: linear-gradient(
+    122deg,
+    var(--color-pine) 0%,
+    var(--color-teal) 55%,
+    var(--color-sage) 100%
+  );
+}
+@utility bg-chat-mobile {
+  background-image: linear-gradient(
+    144deg,
+    var(--color-pine) 0%,
+    var(--color-teal) 50%,
+    var(--color-sage) 83.333%
+  );
+}
+
+@layer base {
+  html {
+    background-color: var(--color-ground);
+  }
+  body {
+    @apply bg-ground type-body text-ink antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
 }
