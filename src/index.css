@@ -192,6 +192,23 @@
   --stair-arcs-delay: 1100ms;
   --stair-arcs-stagger: 90ms;
 
+  /*
+   * Motion da linha da trilha, desktop (opção A, "Contínua").
+   * Fonte de verdade: docs/motion/trilha-referencia.html. Não alterar sem aprovação.
+   * Dispara uma vez com a trilha 60% visível. A linha cresce em ritmo constante; cada etapa/selo
+   * acende quando a linha encosta nele: atraso = início + fração da posição na linha x duração.
+   */
+  --track-trigger-ratio: 0.6;
+  --track-start-delay: 200ms;
+  --duration-track-line: 2100ms;
+  --ease-track-line: linear;
+  --duration-track-pop: 320ms;
+  --ease-track-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --track-circle-from-opacity: 0.25;
+  --track-circle-from-scale: 0.92;
+  --track-seal-from-opacity: 0;
+  --track-seal-from-scale: 0.8;
+
   /* Símbolo do logo, em em (base = tamanho do texto do logo, 22px) */
   --logo-bar-w: calc(5em / 22);
   --logo-bar-h-1: calc(5em / 22);
@@ -410,6 +427,79 @@
 @keyframes stair-arc-grow {
   from {
     transform: scale(0);
+  }
+}
+
+/*
+ * Trilha de "Como um projeto anda" (só desktop + motion-safe; no mobile e com reduced motion fica pronta).
+ * O <ol> da trilha recebe data-track-state: "idle" (estado inicial, antes do disparo) → "play".
+ * --track-f = fração da borda esquerda do elemento ao longo da linha (medida no disparo).
+ */
+@utility track-line-motion {
+  transform-origin: left center;
+  @variant lg {
+    @variant motion-safe {
+      [data-track-state='idle'] & {
+        transform: scaleX(0);
+      }
+      [data-track-state='play'] & {
+        animation: track-line-grow var(--duration-track-line)
+          var(--ease-track-line) backwards;
+        animation-delay: var(--track-start-delay);
+      }
+    }
+  }
+}
+@utility track-circle-motion {
+  --track-from-opacity: var(--track-circle-from-opacity);
+  --track-from-scale: var(--track-circle-from-scale);
+  @variant lg {
+    @variant motion-safe {
+      [data-track-state='idle'] & {
+        opacity: var(--track-from-opacity);
+        transform: scale(var(--track-from-scale));
+      }
+      [data-track-state='play'] & {
+        animation: track-node-pop var(--duration-track-pop)
+          var(--ease-track-pop) backwards;
+        animation-delay: calc(
+          var(--track-start-delay) + var(--track-f, 0) *
+            var(--duration-track-line)
+        );
+      }
+    }
+  }
+}
+@utility track-seal-motion {
+  --track-from-opacity: var(--track-seal-from-opacity);
+  --track-from-scale: var(--track-seal-from-scale);
+  @variant lg {
+    @variant motion-safe {
+      [data-track-state='idle'] & {
+        opacity: var(--track-from-opacity);
+        transform: scale(var(--track-from-scale));
+      }
+      [data-track-state='play'] & {
+        animation: track-node-pop var(--duration-track-pop)
+          var(--ease-track-pop) backwards;
+        animation-delay: calc(
+          var(--track-start-delay) + var(--track-f, 0) *
+            var(--duration-track-line)
+        );
+      }
+    }
+  }
+}
+
+@keyframes track-line-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes track-node-pop {
+  from {
+    opacity: var(--track-from-opacity);
+    transform: scale(var(--track-from-scale));
   }
 }
 
