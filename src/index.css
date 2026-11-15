@@ -209,6 +209,38 @@
   --track-seal-from-opacity: 0;
   --track-seal-from-scale: 0.8;
 
+  /*
+   * Motion do menu mobile (opção A, "Suave"): abrir e fechar o painel único header + menu.
+   * Fonte de verdade do MOVIMENTO: docs/motion/menu-referencia.html (tempos, easing, atrasos, ordem).
+   * O visual (tamanhos, cores, ícones) segue o código. Não alterar os números sem aprovação.
+   */
+  --ease-menu-open: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-menu-close: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-menu-link-close: ease-in;
+  /* palavras-chave CSS (não confundir com o token --ease-out do tema) */
+  --ease-menu-scrim: ease-out;
+  --ease-menu-icon-fade: ease;
+  --duration-menu-panel-open: 520ms;
+  --duration-menu-panel-close: 320ms;
+  --duration-menu-link-open: 380ms;
+  --duration-menu-link-close: 140ms;
+  --duration-menu-icon-open: 440ms;
+  --duration-menu-icon-close: 340ms;
+  --duration-menu-scrim-open: 300ms;
+  --duration-menu-scrim-close: 240ms;
+  --menu-link-delay: 120ms;
+  --menu-link-stagger: 55ms;
+  --menu-link-offset: 12px;
+  --menu-icon-rotate: 180deg;
+  /*
+   * Ícone do código: lucide Menu (traços em y 5/12/19, espessura 2.4) ↔ lucide X (espessura 2,
+   * de 6,6 a 18,18). Os traços de cima/baixo andam 7 até o centro (y 12) e esticam 16 → 12√2.
+   */
+  --menu-icon-stroke: 2.4;
+  --menu-icon-stroke-open: 2;
+  --menu-icon-line-offset: 7px;
+  --menu-icon-x-scale: 1.06066;
+
   /* Símbolo do logo, em em (base = tamanho do texto do logo, 22px) */
   --logo-bar-w: calc(5em / 22);
   --logo-bar-h-1: calc(5em / 22);
@@ -487,6 +519,143 @@
             var(--duration-track-line)
         );
       }
+    }
+  }
+}
+
+/*
+ * Menu mobile: o <header> recebe data-menu-open. Transições (interrompíveis) declaradas nos dois
+ * estados, como na referência; a do estado de destino é a que vale. Só com motion-safe: com
+ * reduced motion os estados trocam sem animação (a regra global não zera os atrasos).
+ */
+@utility menu-panel {
+  @variant max-lg {
+    @variant motion-safe {
+      transition: border-radius var(--duration-menu-panel-close)
+        var(--ease-menu-close);
+      [data-menu-open='true'] & {
+        transition: border-radius var(--duration-menu-panel-open)
+          var(--ease-menu-open);
+      }
+    }
+  }
+}
+/* bloco dos links: cresce de 0fr a 1fr (altura do conteúdo, sem medir) e sai do alcance ao fechar */
+@utility menu-links {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  [data-menu-open='true'] & {
+    grid-template-rows: 1fr;
+    visibility: visible;
+  }
+  @variant motion-safe {
+    transition:
+      grid-template-rows var(--duration-menu-panel-close) var(--ease-menu-close),
+      visibility 0s linear var(--duration-menu-panel-close);
+    [data-menu-open='true'] & {
+      transition:
+        grid-template-rows var(--duration-menu-panel-open) var(--ease-menu-open),
+        visibility 0s linear 0s;
+    }
+  }
+}
+/* --i = índice do link */
+@utility menu-link {
+  opacity: 0;
+  transform: translateY(var(--menu-link-offset));
+  [data-menu-open='true'] & {
+    opacity: 1;
+    transform: none;
+  }
+  @variant motion-safe {
+    transition:
+      opacity var(--duration-menu-link-close) var(--ease-menu-link-close),
+      transform var(--duration-menu-link-close) var(--ease-menu-link-close);
+    [data-menu-open='true'] & {
+      transition:
+        opacity var(--duration-menu-link-open) var(--ease-menu-open),
+        transform var(--duration-menu-link-open) var(--ease-menu-open);
+      transition-delay: calc(
+        var(--menu-link-delay) + var(--i) * var(--menu-link-stagger)
+      );
+    }
+  }
+}
+@utility menu-icon {
+  [data-menu-open='true'] & {
+    transform: rotate(var(--menu-icon-rotate));
+  }
+  @variant motion-safe {
+    transition: transform var(--duration-menu-icon-close) var(--ease-menu-close);
+    [data-menu-open='true'] & {
+      transition: transform var(--duration-menu-icon-open) var(--ease-menu-open);
+    }
+  }
+}
+@utility menu-icon-line {
+  stroke-width: var(--menu-icon-stroke);
+  transform-box: fill-box;
+  transform-origin: center;
+  [data-menu-open='true'] & {
+    stroke-width: var(--menu-icon-stroke-open);
+  }
+  @variant motion-safe {
+    transition:
+      transform var(--duration-menu-icon-close) var(--ease-menu-close),
+      stroke-width var(--duration-menu-icon-close) var(--ease-menu-close),
+      opacity var(--duration-menu-icon-close) var(--ease-menu-icon-fade);
+    [data-menu-open='true'] & {
+      transition:
+        transform var(--duration-menu-icon-open) var(--ease-menu-open),
+        stroke-width var(--duration-menu-icon-open) var(--ease-menu-open),
+        opacity var(--duration-menu-icon-open) var(--ease-menu-icon-fade);
+    }
+  }
+}
+@utility menu-icon-top {
+  [data-menu-open='true'] & {
+    transform: translateY(var(--menu-icon-line-offset)) rotate(45deg)
+      scaleX(var(--menu-icon-x-scale));
+  }
+}
+@utility menu-icon-middle {
+  [data-menu-open='true'] & {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+}
+@utility menu-icon-bottom {
+  [data-menu-open='true'] & {
+    transform: translateY(calc(var(--menu-icon-line-offset) * -1))
+      rotate(-45deg) scaleX(var(--menu-icon-x-scale));
+  }
+}
+/* fundo do botão aberto: camada própria, para não mexer na transição do hover do IconButton.
+   Na referência a curva é a de fechar nos dois sentidos (ao abrir só muda a duração). */
+@utility menu-toggle-fill {
+  opacity: 0;
+  [data-menu-open='true'] & {
+    opacity: 1;
+  }
+  @variant motion-safe {
+    transition: opacity var(--duration-menu-icon-close) var(--ease-menu-close);
+    [data-menu-open='true'] & {
+      transition-duration: var(--duration-menu-icon-open);
+    }
+  }
+}
+@utility menu-scrim {
+  opacity: 0;
+  pointer-events: none;
+  [data-menu-open='true'] & {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  @variant motion-safe {
+    transition: opacity var(--duration-menu-scrim-close) var(--ease-menu-scrim);
+    [data-menu-open='true'] & {
+      transition-duration: var(--duration-menu-scrim-open);
     }
   }
 }

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Referência: motion 3, menu mobile (opção A)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@800&family=DM+Sans:wght@400;500;700&family=Syne:wght@800&display=swap">
+<!--
+  REFERÊNCIA OFICIAL DO MOTION 3 (opção A, "Suave"), menu mobile.
+  Esta página é a fonte de verdade da animação. A implementação no site deve ser idêntica em
+  medidas, tempos, easing e ordem. Não altere os números sem aprovação do Vlad.
+  O fundo da hero aqui é só um cenário para ver a translucidez; o que vale é o header/menu.
+
+  GEOMETRIA (largura 390; Figma: header fechado 11:24, menu aberto 46:32 / painel 46:58)
+  - O header e o menu são UM ÚNICO elemento (o painel) que cresce para baixo. Posição: left 16, top 12, largura 358.
+  - Fechado: altura 52, raio 26. Aberto: altura 238, raio 24. Borda 1px na cor line (#24423F).
+    Fundo rgba(18,48,45,.78) com backdrop blur de 20px, nos dois estados.
+  - Barra (logo, botão "Orçamento", botão do menu) tem 50px de altura e NÃO se mexe quando o painel abre:
+    logo, botão e ícone ficam exatamente no mesmo lugar nos dois estados.
+  - Links: 3 linhas de 56px, espaço de 2px entre elas, padding 6px (laterais e topo) e 8px embaixo
+    (bloco de 186px). Cada link: texto à esquerda (padding 16), seta (arrow-right 20px, cor sage) à direita.
+  - Botão do menu: círculo de 36px. Ícone de 20px (traços de 2px, pontas arredondadas).
+
+  ABRIR (toque no ícone)
+  - Painel: altura 52 -> 238 e raio 26 -> 24 em 520 ms, easing cubic-bezier(.22,1,.36,1).
+  - Links: opacity 0 -> 1 e translateY(12px) -> 0 em 380 ms, easing cubic-bezier(.22,1,.36,1),
+    com atraso de 120 ms + 55 ms x índice (links em 120, 175 e 230 ms).
+  - Ícone: o svg gira 180deg em 440 ms, easing cubic-bezier(.22,1,.36,1). No mesmo tempo, o traço de cima
+    vai para o centro e gira 45deg, o de baixo vai para o centro e gira -45deg, e o do meio some
+    (scaleX 0 e opacity 0). Resultado: "X". Os três traços têm a mesma duração e o mesmo easing do giro.
+  - Círculo do botão: fundo transparente -> rgba(228,251,248,.09) em 440 ms.
+  - Fundo escurecido (scrim, rgba(10,36,34,.62)): opacity 0 -> 1 em 300 ms, easing ease-out.
+  FECHAR (toque no X, toque no fundo escurecido ou Esc)
+  - Painel: 238 -> 52 e raio 24 -> 26 em 320 ms, easing cubic-bezier(.4,0,.2,1).
+  - Links: opacity e transform de volta ao estado fechado em 140 ms, easing ease-in, sem atraso e todos juntos.
+    Depois dos 320 ms do painel, os links ficam fora do alcance (visibility hidden), para não receberem foco nem toque.
+  - Ícone e círculo do botão: voltam em 340 ms, easing cubic-bezier(.4,0,.2,1).
+  - Scrim: opacity 1 -> 0 em 240 ms, easing ease-out.
+  INTERAÇÃO
+  - Tudo é interrompível: tocar no meio da animação reverte a partir do ponto em que está (são transições).
+  - aria-expanded no botão do menu muda a cada toque; o rótulo muda entre "Abrir menu" e "Fechar menu".
+  - Com prefers-reduced-motion: reduce, os estados trocam sem animação.
+-->
+<style>
+  :root {
+    --ground: #0A2422; --line: #24423F; --ink: #E4FBF8; --muted: #9DBDB8; --amp: #FFC94A; --on-amp: #0A2422;
+    --sage: #7FBFB6;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #061a18; color: var(--ink); font: 400 16px/24px "DM Sans", system-ui, sans-serif;
+         min-height: 100vh; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding: 24px; }
+  .note { margin: 0 auto; max-width: 390px; color: var(--muted); font-size: 14px; line-height: 20px; }
+
+  .screen { position: relative; flex: none; margin-inline: auto; width: 390px; height: 560px; overflow: hidden; background: var(--ground);
+            --po: 520ms; --pe: cubic-bezier(.22,1,.36,1); --pc: 320ms; --pce: cubic-bezier(.4,0,.2,1);
+            --io: 440ms; --ie: cubic-bezier(.22,1,.36,1); --ic: 340ms; --irot: 180deg;
+            --ls0: 120ms; --ls: 55ms; --ld: 380ms; --le: cubic-bezier(.22,1,.36,1); --lcd: 140ms; --lfrom: translateY(12px); }
+  .hero { position: absolute; inset: 0; padding: 88px 16px 0; text-align: center; }
+  .hero .t { font: 800 62px/62px "Bricolage Grotesque", system-ui, sans-serif; letter-spacing: -.03em; }
+  .hero .t em { font-style: normal; color: var(--amp); }
+  .hero .p { margin-top: 22px; color: var(--muted); }
+  .steps i { position: absolute; bottom: 0; width: 91.5px; border-radius: 14px 14px 0 0; }
+  .scrim { position: absolute; inset: 0; background: rgba(10,36,34,.62); opacity: 0; pointer-events: none; transition: opacity 240ms ease-out; }
+  .screen.open .scrim { opacity: 1; pointer-events: auto; transition-duration: 300ms; }
+
+  .menu { position: absolute; left: 16px; top: 12px; width: 358px; }
+  .panel { width: 100%; height: 52px; overflow: hidden; border-radius: 26px; border: 1px solid var(--line);
+           background: rgba(18,48,45,.78); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+           transition: height var(--pc) var(--pce), border-radius var(--pc) var(--pce); }
+  .screen.open .panel { height: 238px; border-radius: 24px; transition: height var(--po) var(--pe), border-radius var(--po) var(--pe); }
+  .bar { height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 6px 0 16px; }
+  .logo { display: inline-flex; align-items: flex-end; gap: 8px; }
+  .logo .bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; margin-bottom: 3px; }
+  .logo .bars b { width: 3px; border-radius: 1px; }
+  .logo .name { font: 800 20px/16px Syne, "Arial Black", system-ui, sans-serif; letter-spacing: -.02em; }
+  .acts { display: flex; align-items: center; gap: 6px; }
+  .cta { height: 38px; width: 116px; border-radius: 999px; border: 0; background: var(--amp); color: var(--on-amp); font: 700 16px/1 "DM Sans", system-ui, sans-serif; cursor: pointer; }
+  .mbtn { width: 36px; height: 36px; border-radius: 50%; border: 0; padding: 0; display: grid; place-items: center; cursor: pointer; color: var(--ink);
+          background: rgba(228,251,248,0); transition: background-color var(--ic) var(--pce); }
+  .screen.open .mbtn { background: rgba(228,251,248,.09); transition-duration: var(--io); }
+  .cta:focus-visible, .mbtn:focus-visible, .link:focus-visible { outline: 2px solid var(--amp); outline-offset: 2px; }
+
+  .ico { display: block; width: 20px; height: 20px; transition: transform var(--ic) var(--pce); }
+  .screen.open .ico { transform: rotate(var(--irot)); transition: transform var(--io) var(--ie); }
+  .ico line { stroke: currentColor; stroke-width: 2; stroke-linecap: round; transform-box: fill-box; transform-origin: center;
+              transition: transform var(--ic) var(--pce), opacity var(--ic) ease; }
+  .screen.open .ico line { transition: transform var(--io) var(--ie), opacity var(--io) ease; }
+  .screen.open .ico .t { transform: translateY(6px) rotate(45deg); }
+  .screen.open .ico .b { transform: translateY(-6px) rotate(-45deg); }
+  .screen.open .ico .m { transform: scaleX(0); opacity: 0; }
+
+  .links { padding: 6px 6px 8px; visibility: hidden; transition: visibility 0s linear var(--pc); }
+  .screen.open .links { visibility: visible; transition-delay: 0s; }
+  .link { width: 100%; height: 56px; margin-bottom: 2px; padding: 0 16px; border: 0; border-radius: 14px; background: transparent; color: var(--ink);
+          display: flex; align-items: center; justify-content: space-between; text-align: left; cursor: pointer;
+          font: 700 18px/28px "DM Sans", system-ui, sans-serif;
+          opacity: 0; transform: var(--lfrom);
+          transition: opacity var(--lcd) ease-in, transform var(--lcd) ease-in, background-color 180ms ease-out; }
+  .link:last-child { margin-bottom: 0; }
+  .screen.open .link { opacity: 1; transform: none;
+          transition: opacity var(--ld) var(--le), transform var(--ld) var(--le), background-color 180ms ease-out;
+          transition-delay: calc(var(--ls0) + var(--i) * var(--ls)), calc(var(--ls0) + var(--i) * var(--ls)), 0s; }
+  .link svg { width: 20px; height: 20px; color: var(--sage); flex: none; }
+
+  @media (prefers-reduced-motion: reduce) { .screen *, .scrim { transition-duration: 0s !important; transition-delay: 0s !important; } }
+</style>
+</head>
+<body>
+<p class="note">Toque no ícone do menu para abrir e fechar. Esta página é a referência do motion 3 (opção A).</p>
+<div class="screen" id="screen">
+  <div class="hero"><div class="t">A gente faz o site. E <em>traz gente</em> pra ele.</div>
+    <div class="p">Site, landing page ou sistema de um lado. Anúncio no Google e na Meta do outro.</div></div>
+  <div class="steps" aria-hidden="true" style="position:absolute;left:0;right:0;bottom:0;height:190px">
+    <i style="left:0;height:60px;background:#2C5D57"></i><i style="left:99.5px;height:100px;background:#3A766F"></i>
+    <i style="left:199px;height:145px;background:#7FBFB6"></i><i style="left:298.5px;height:190px;background:#D4FBF6"></i>
+  </div>
+  <div class="scrim" id="scrim"></div>
+  <div class="menu"><div class="panel">
+    <div class="bar">
+      <div class="logo"><span class="bars" aria-hidden="true"><b style="height:30%;background:#2C5D57"></b><b style="height:52%;background:#3A766F"></b><b style="height:76%;background:#7FBFB6"></b><b style="height:100%;background:#D4FBF6"></b></span><span class="name">Amplyon</span></div>
+      <div class="acts">
+        <button class="cta" type="button">Orçamento</button>
+        <button class="mbtn" id="mbtn" type="button" aria-expanded="false" aria-controls="links" aria-label="Abrir menu">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line class="t" x1="4" y1="6" x2="20" y2="6"/><line class="m" x1="4" y1="12" x2="20" y2="12"/><line class="b" x1="4" y1="18" x2="20" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+    <nav class="links" id="links" aria-label="Seções">
+      <button class="link" type="button" style="--i:0">Serviços<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+      <button class="link" type="button" style="--i:1">Como trabalhamos<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+      <button class="link" type="button" style="--i:2">Diferenciais<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+    </nav>
+  </div></div>
+</div>
+<script>
+  var screen = document.getElementById('screen'), btn = document.getElementById('mbtn');
+  function setOpen(open) {
+    screen.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', String(open));
+    btn.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+  }
+  btn.addEventListener('click', function () { setOpen(!screen.classList.contains('open')); });
+  document.getElementById('scrim').addEventListener('click', function () { setOpen(false); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+</script>
+</body>
+</html>
