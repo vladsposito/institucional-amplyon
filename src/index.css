@@ -193,6 +193,18 @@
   --stair-arcs-stagger: 90ms;
 
   /*
+   * Motion do rabisco sob "traz gente", desktop (opção B, "Fecha a cena").
+   * Fonte de verdade: docs/motion/rabisco-referencia.html. Não alterar sem aprovação.
+   * Traço desenhado como caneta (pathLength 1, dasharray 1 2, dashoffset 1.02 → 0), no MESMO relógio
+   * da escada: as duas animações CSS nascem no mesmo commit, então o atraso conta do zero da escada.
+   * 1.02 (e não 1) evita o pontinho da ponta redonda no primeiro quadro.
+   */
+  --scribble-draw-delay: 1300ms;
+  --duration-scribble-draw: 800ms;
+  --ease-scribble-draw: cubic-bezier(0.45, 0, 0.2, 1);
+  --scribble-dash-start: 1.02;
+
+  /*
    * Motion da linha da trilha, desktop (opção A, "Contínua").
    * Fonte de verdade: docs/motion/trilha-referencia.html. Não alterar sem aprovação.
    * Dispara uma vez com a trilha 60% visível. A linha cresce em ritmo constante; cada etapa/selo
@@ -459,6 +471,22 @@
 @keyframes stair-arc-grow {
   from {
     transform: scale(0);
+  }
+}
+
+/* Rabisco (desktop): usar com motion-safe; fill backwards = invisível na espera, completo depois. */
+@utility scribble-draw {
+  animation: scribble-draw var(--duration-scribble-draw)
+    var(--ease-scribble-draw) var(--scribble-draw-delay) backwards;
+}
+@keyframes scribble-draw {
+  from {
+    stroke-dasharray: 1 2;
+    stroke-dashoffset: var(--scribble-dash-start);
+  }
+  to {
+    stroke-dasharray: 1 2;
+    stroke-dashoffset: 0;
   }
 }
 
