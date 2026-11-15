@@ -18,6 +18,7 @@ React + Vite + TypeScript (strict) · Tailwind CSS v4 (`@tailwindcss/vite`, sem 
 - `src/components/` — componentes reutilizáveis
 - `src/sections/` — seções da página
 - `src/assets/` — imagens e arquivos estáticos
+- `public/favicon/` — favicons (SVG principal, ICO/PNG de fallback, apple-touch-icon) e `site.webmanifest` (ícones 192/512), todos ligados no `index.html`
 - `src/lib/` — utilitários
 - Alias: `@/` aponta para `src/`
 - `.mcp.json` — MCP do Figma (autenticar com `/mcp`)
