@@ -19,11 +19,14 @@ export function Scribble({ children }: { children: ReactNode }) {
         preserveAspectRatio="none"
         fill="none"
       >
+        {/* Motion mobile (docs/motion/hero-mobile-referencia.html): mesmo desenho e relógio do desktop. */}
         <path
           d="M3 10C38 3 74 14 112 7C150 2.38419e-07 190 2 228 9C266 16 276 12 297 5"
+          pathLength={1}
           stroke="currentColor"
           strokeWidth="5"
           strokeLinecap="round"
+          className="motion-safe:scribble-draw"
         />
       </svg>
       <svg

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Referência: motion de abertura da hero, versão MOBILE (escada + rabisco)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@800&display=swap">
+<!--
+  REFERÊNCIA OFICIAL DA ABERTURA DA HERO NO MOBILE (390 px): escada (motion 1, opção A) + rabisco (motion 4, opção B).
+  Esta página é a fonte de verdade da animação MOBILE. Os tempos, o easing e a ordem são EXATAMENTE os mesmos
+  já aprovados no desktop. O que muda é só a geometria, que vem do Figma mobile (frame 17:44).
+  Não altere os números sem aprovação do Vlad.
+
+  ESCADA (Figma: "Escada da marca" 17:60, 390 x 190, recorta o conteúdo)
+  - Degraus (x, y, largura, altura visível), raio 12 só nos cantos de cima, base reta:
+      pine  #2C5D57   0     130   91.5   60
+      teal  #3A766F   99.5   90   91.5  100
+      sage  #7FBFB6   199    45   91.5  145
+      mint  #D4FBF6   298.5   0   91.5  190
+  - Arcos no degrau mint: 3 circunferências só de contorno (traço 7, cor ground #0A2422), todas com centro no
+    canto superior direito do degrau mint (x 390, y 0 da escada), raios 18, 40 e 62. O degrau mint recorta os arcos.
+  - Aqui os degraus foram desenhados 10 px mais altos que o visível, para a base ficar reta durante a subida.
+
+  ANIMAÇÃO DA ESCADA (idêntica ao desktop)
+  - Cada degrau sobe de baixo, saindo do recorte (translateY da altura inteira até 0), 700 ms,
+    easing cubic-bezier(.22,1,.36,1), atraso = índice x 180 ms (pine 0, teal 180, sage 360, mint 540). Termina em 1240 ms.
+  - Os 3 arcos crescem a partir do canto (scale 0 até 1, origem no canto superior direito do degrau mint),
+    500 ms, mesmo easing, atraso = 1100 ms + índice x 90 ms (menor raio primeiro). Termina em 1780 ms.
+
+  RABISCO (Figma: frame "Rabisco" 17:52, 300 x 16, em x 0, y 63 dentro do bloco "traz gente" de 300 x 79)
+  - TRAÇO (não preenchimento): largura 5, cor amp #FFC94A, pontas arredondadas, deslocado em (3, 2.6443).
+  - Caminho:
+      M 0 7.3557281494140625 C 35 0.3557281494140625 71 11.355728149414062 109 4.3557281494140625
+      C 147 -2.6442718505859375 187 -0.6442718505859375 225 6.3557281494140625
+      C 263 13.355728149414062 273 9.355727910995483 294 2.3557279109954834
+  - Desenho da esquerda para a direita como uma caneta: stroke-dasharray "1 2" com pathLength=1,
+    stroke-dashoffset de 1.02 até 0. Começa em 1300 ms, dura 800 ms (termina em 2100 ms), easing cubic-bezier(.45,0,.2,1).
+  - Antes de começar o rabisco NÃO aparece. Depois de terminar é o traço comum, completo, sem tracejado.
+
+  RELÓGIO ÚNICO
+  - Escada e rabisco partem do MESMO instante zero (primeiro degrau sobe a 0 ms), depois de document.fonts.ready.
+  - O título e o resto da hero não animam.
+  - Com prefers-reduced-motion: reduce, ou sem JavaScript, aparece pronto, sem animação.
+
+  TÍTULO (só para a referência; no site, siga o código): Bricolage Grotesque 800, 68 px / 67 px, letter-spacing -3%.
+-->
+<style>
+  :root { --ground: #0A2422; --ink: #E4FBF8; --amp: #FFC94A; --on-amp: #0A2422; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #000; color: var(--ink); font: 400 16px/24px system-ui, sans-serif;
+         min-height: 100vh; display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 24px 0; }
+  #hero { position: relative; flex: none; width: 390px; height: 666px; background: var(--ground); overflow: hidden; }
+  .title { position: absolute; left: 16px; top: 36px; width: 358px; height: 280px;
+           font: 800 68px/67px "Bricolage Grotesque", system-ui, sans-serif; letter-spacing: -.03em; white-space: nowrap; }
+  .title > span { position: absolute; display: block; }
+  .dest { position: absolute; left: 55px; top: 134px; width: 300px; height: 79px; }
+  .dest > .t { position: absolute; left: 0; top: 0; white-space: nowrap; }
+  .scribble { position: absolute; left: 0; top: 63px; width: 300px; height: 16px; overflow: visible; }
+  .stairs { position: absolute; left: 0; top: 476px; width: 390px; height: 190px; display: block; overflow: hidden; }
+  button { height: 48px; padding: 0 24px; border-radius: 999px; border: 0; background: var(--amp); color: var(--on-amp);
+           font: 700 16px/1 system-ui, sans-serif; cursor: pointer; }
+  button:focus-visible { outline: 2px solid var(--amp); outline-offset: 2px; }
+
+  .stairs .bar { transform: translateY(0); }
+  .stairs.play .bar { animation: rise 700ms cubic-bezier(.22,1,.36,1) backwards; animation-delay: calc(var(--i) * 180ms); }
+  @keyframes rise { from { transform: translateY(var(--h)); } }
+  .ring { fill: none; stroke: var(--ground); stroke-width: 7; transform-box: view-box; transform-origin: 390px 0; }
+  .stairs.play .ring { animation: ringScale 500ms cubic-bezier(.22,1,.36,1) backwards; animation-delay: calc(1100ms + var(--j) * 90ms); }
+  @keyframes ringScale { from { transform: scale(0); } }
+  @media (prefers-reduced-motion: reduce) { .stairs.play .bar, .stairs.play .ring { animation: none !important; } }
+</style>
+</head>
+<body>
+<div id="hero">
+  <div class="title">
+    <span style="left:14px;top:0">A gente faz</span>
+    <span style="left:91.5px;top:67px">o site.</span>
+    <span style="left:0;top:134px">E</span>
+    <span class="dest"><span class="t">traz gente</span>
+      <svg class="scribble" viewBox="0 0 300 16" aria-hidden="true">
+        <path id="pen" pathLength="1" transform="translate(3 2.6443)" fill="none" stroke="#FFC94A" stroke-width="5" stroke-linecap="round"
+          d="M 0 7.3557281494140625 C 35 0.3557281494140625 71 11.355728149414062 109 4.3557281494140625 C 147 -2.6442718505859375 187 -0.6442718505859375 225 6.3557281494140625 C 263 13.355728149414062 273 9.355727910995483 294 2.3557279109954834"/>
+      </svg>
+    </span>
+    <span style="left:71px;top:213px">pra ele.</span>
+  </div>
+  <svg class="stairs" id="stairs" viewBox="0 0 390 190" role="img" aria-label="Escada da marca">
+    <defs><clipPath id="clip-mint"><rect x="298.5" y="0" width="91.5" height="200" rx="12"/></clipPath></defs>
+    <g class="bar" style="--i:0;--h:70px"><rect x="0" y="130" width="91.5" height="70" rx="12" fill="#2C5D57"/></g>
+    <g class="bar" style="--i:1;--h:110px"><rect x="99.5" y="90" width="91.5" height="110" rx="12" fill="#3A766F"/></g>
+    <g class="bar" style="--i:2;--h:155px"><rect x="199" y="45" width="91.5" height="155" rx="12" fill="#7FBFB6"/></g>
+    <g class="bar" style="--i:3;--h:200px">
+      <rect x="298.5" y="0" width="91.5" height="200" rx="12" fill="#D4FBF6"/>
+      <g clip-path="url(#clip-mint)">
+        <circle class="ring" style="--j:0" cx="390" cy="0" r="18"/>
+        <circle class="ring" style="--j:1" cx="390" cy="0" r="40"/>
+        <circle class="ring" style="--j:2" cx="390" cy="0" r="62"/>
+      </g>
+    </g>
+  </svg>
+</div>
+<button id="replay" type="button">Reproduzir de novo</button>
+<script>
+  var RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var stairs = document.getElementById('stairs'), pen = document.getElementById('pen'), penAnim = null;
+  var START = 1300, DURATION = 800, EASE = 'cubic-bezier(.45,0,.2,1)';
+
+  function play() {
+    if (penAnim) { penAnim.cancel(); penAnim = null; }
+    stairs.classList.remove('play');
+    if (RM) return;
+    void stairs.getBoundingClientRect();
+    stairs.classList.add('play');
+    penAnim = pen.animate(
+      [{ strokeDasharray: '1 2', strokeDashoffset: 1.02 }, { strokeDasharray: '1 2', strokeDashoffset: 0 }],
+      { duration: DURATION, delay: START, easing: EASE, fill: 'backwards' }
+    );
+  }
+  document.getElementById('replay').addEventListener('click', play);
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () { requestAnimationFrame(play); });
+</script>
+</body>
+</html>

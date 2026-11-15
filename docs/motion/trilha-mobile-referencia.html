@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Referência: motion 2, linha da trilha, versão MOBILE (opção A, vertical)</title>
+<!--
+  REFERÊNCIA OFICIAL DO MOTION 2 NO MOBILE (opção A, "Contínua", na vertical). Mesma lógica e mesmos tempos do desktop.
+  Esta página é a fonte de verdade da animação MOBILE. Não altere os números sem aprovação do Vlad.
+
+  GEOMETRIA (Figma: frame "Trilha" 19:96, 358 x 975; coordenadas dentro dele)
+  - Linha vertical: x 19, y 20, largura 2, altura 754 (termina em y 774, o centro do círculo 4), cor line-strong #5F8A84, raio 1.
+    A linha NÃO chega ao selo "Repete todo mês" (y 946).
+  - Círculos 40 x 40 em x 0, y 0 / 250 / 500 / 754 (borda 2 sage #7FBFB6, fundo #12302D; o 4º com fundo mint #D4FBF6).
+  - Selos "seu ok" 68 x 26 em x 0, y 204 / 454 / 708 (fundo amp). Selo "Repete todo mês" 145 x 29 em x 56, y 946 (só borda sage).
+  - Textos das etapas em x 56 (largura 302): título em y +6 da etapa, descrição em y +42.
+
+  ANIMAÇÃO (idêntica ao desktop, só que de cima para baixo)
+  - A linha cresce de cima para baixo (scaleY de 0 a 1, origem no topo), 2100 ms, easing linear, começando 200 ms depois do disparo.
+    Ritmo constante.
+  - Círculos e selos "acendem" no instante em que a linha encosta na borda de CIMA do elemento:
+    círculos de opacity .25 e scale .92 até 1 e 1; selos de opacity 0 e scale .8 até 1 e 1.
+    320 ms, easing cubic-bezier(.34,1.56,.64,1), com o estado inicial aplicado durante o atraso.
+  - Atraso = 200 ms + ((y do topo do elemento - 20) / 754, mínimo 0) x 2100 ms:
+      círculo 1  y   0  atraso  200 ms
+      selo 1     y 204  atraso  712 ms
+      círculo 2  y 250  atraso  841 ms
+      selo 2     y 454  atraso 1409 ms
+      círculo 3  y 500  atraso 1537 ms
+      selo 3     y 708  atraso 2116 ms
+      círculo 4  y 754  atraso 2244 ms
+      selo repete (y 946, fora da linha)  atraso 2300 ms (quando a linha termina)
+    O último elemento termina em 2620 ms.
+  - Textos NÃO animam. Estado base (sem animação) = trilha pronta e completa.
+    Com prefers-reduced-motion: reduce, ou sem JavaScript, aparece pronta, sem animação.
+
+  DISPARO (decisão para o mobile, porque a trilha tem 975 px de altura e não cabe inteira na tela)
+  - Dispara uma única vez, quando o topo da trilha passa de 35% abaixo da borda de baixo da tela
+    (IntersectionObserver com rootMargin "0px 0px -35% 0px" e threshold 0, observando o contêiner da trilha).
+-->
+<style>
+  :root { --ground: #0A2422; --surface: #12302D; --line-strong: #5F8A84; --ink: #E4FBF8; --ink-muted: #9DBDB8;
+          --amp: #FFC94A; --on-amp: #0A2422; --sage: #7FBFB6; --mint: #D4FBF6; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font: 400 16px/24px system-ui, sans-serif;
+         display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 24px 16px 48px; }
+  #mock { position: relative; flex: none; width: 358px; height: 975px; }
+  .line { position: absolute; left: 19px; top: 20px; width: 2px; height: 754px; border-radius: 1px; background: var(--line-strong); transform-origin: center top; }
+  .node { position: absolute; }
+  .circle { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--sage); background: var(--surface);
+            display: grid; place-items: center; font: 400 18px/1 system-ui, sans-serif; color: var(--ink); }
+  .circle.last { background: var(--mint); color: var(--on-amp); }
+  .pill { left: 0; width: 68px; height: 26px; border-radius: 999px; background: var(--amp); color: var(--on-amp);
+          font: 500 12px/26px ui-monospace, Menlo, monospace; letter-spacing: .1em; text-align: center; text-transform: uppercase; }
+  .pill.out { left: 56px; width: 145px; height: 29px; background: transparent; border: 1px solid var(--sage); color: var(--sage); line-height: 27px; }
+  .title { position: absolute; left: 56px; width: 302px; font: 700 22px/28px system-ui, sans-serif; letter-spacing: -.01em; }
+  .desc { position: absolute; left: 56px; width: 302px; font: 400 16px/24px system-ui, sans-serif; color: var(--ink-muted); }
+  button { height: 48px; padding: 0 24px; border-radius: 999px; border: 0; background: var(--amp); color: var(--on-amp);
+           font: 700 16px/1 system-ui, sans-serif; cursor: pointer; }
+  button:focus-visible { outline: 2px solid var(--amp); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<button id="replay" type="button">Reproduzir de novo</button>
+<div id="mock">
+  <div class="line"></div>
+  <div class="node circle" data-y="0" style="left:0;top:0">1</div>
+  <div class="node pill" data-y="204" style="top:204px">seu ok</div>
+  <div class="node circle" data-y="250" style="left:0;top:250px">2</div>
+  <div class="node pill" data-y="454" style="top:454px">seu ok</div>
+  <div class="node circle" data-y="500" style="left:0;top:500px">3</div>
+  <div class="node pill" data-y="708" style="top:708px">seu ok</div>
+  <div class="node circle last" data-y="754" style="left:0;top:754px">4</div>
+  <div class="node pill out" data-y="end" style="top:946px">Repete todo mês</div>
+  <div class="title" style="top:6px">A gente conversa</div>
+  <div class="desc" style="top:42px">Você conta do negócio, do cliente e da meta. Sai com escopo, prazo e preço fechados.</div>
+  <div class="title" style="top:256px">A gente constrói</div>
+  <div class="desc" style="top:292px">Design e código. Você acompanha por um link de prévia e aprova antes de publicar.</div>
+  <div class="title" style="top:506px">Vai pro ar</div>
+  <div class="desc" style="top:542px">Página publicada, mensuração instalada e as primeiras campanhas rodando.</div>
+  <div class="title" style="top:760px">A gente não some</div>
+  <div class="desc" style="top:796px">Todo mês lemos os números, ajustamos página e anúncio e mostramos o que mudou.</div>
+</div>
+<script>
+  var LINE_TOP = 20, LINE_H = 754, DURATION = 2100, START = 200, POP = 320;
+  var EASE_POP = 'cubic-bezier(.34,1.56,.64,1)';
+  var RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var mock = document.getElementById('mock');
+  var anims = [];
+
+  function play() {
+    anims.forEach(function (a) { a.cancel(); });
+    anims = [];
+    if (RM) return;
+    anims.push(mock.querySelector('.line').animate(
+      [{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }],
+      { duration: DURATION, delay: START, easing: 'linear', fill: 'backwards' }
+    ));
+    mock.querySelectorAll('.node').forEach(function (n) {
+      var y = n.getAttribute('data-y');
+      var frac = y === 'end' ? 1 : Math.max(0, (parseFloat(y) - LINE_TOP) / LINE_H);
+      var pill = n.classList.contains('pill');
+      var from = pill ? { opacity: 0, transform: 'scale(.8)' } : { opacity: .25, transform: 'scale(.92)' };
+      anims.push(n.animate(
+        [from, { opacity: 1, transform: 'scale(1)' }],
+        { duration: POP, delay: START + frac * DURATION, easing: EASE_POP, fill: 'backwards' }
+      ));
+    });
+  }
+
+  document.getElementById('replay').addEventListener('click', function () { window.scrollTo(0, 0); play(); });
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { play(); io.disconnect(); } });
+    }, { threshold: 0, rootMargin: '0px 0px -35% 0px' });
+    io.observe(mock);
+  } else { play(); }
+</script>
+</body>
+</html>

@@ -191,6 +191,12 @@
   --duration-stair-arc: 500ms;
   --stair-arcs-delay: 1100ms;
   --stair-arcs-stagger: 90ms;
+  /*
+   * Escada mobile (docs/motion/hero-mobile-referencia.html): mesmos tempos e easing do desktop.
+   * Cada degrau parte deslocado da própria altura + 10/390 da largura da escada, como os degraus
+   * 10 px mais altos da referência (cqw: o contêiner da escada mobile é @container).
+   */
+  --stair-bleed-mobile: calc(10 / 390 * 100cqw);
 
   /*
    * Motion do rabisco sob "traz gente", desktop (opção B, "Fecha a cena").
@@ -220,6 +226,11 @@
   --track-circle-from-scale: 0.92;
   --track-seal-from-opacity: 0;
   --track-seal-from-scale: 0.8;
+  /*
+   * Trilha mobile (docs/motion/trilha-mobile-referencia.html): mesmos tempos, de cima para baixo.
+   * Dispara uma vez quando o topo da trilha sobe acima de 65% da altura da tela.
+   */
+  --track-trigger-margin-mobile: 0px 0px -35% 0px;
 
   /*
    * Motion do menu mobile (opção A, "Suave"): abrir e fechar o painel único header + menu.
@@ -447,8 +458,8 @@
 }
 
 /*
- * Entrada da escada da hero (desktop). Usar com motion-safe: com reduced motion fica a escada pronta.
- * --i = índice do degrau, --h = deslocamento inicial (altura do degrau, em unidades do viewBox).
+ * Entrada da escada da hero (desktop e mobile). Usar com motion-safe: com reduced motion fica a escada pronta.
+ * --i = índice do degrau, --h = deslocamento inicial (altura do degrau + sobra; viewBox no desktop, % + cqw no mobile).
  * --j = índice do arco, de dentro para fora. fill-mode backwards: estado base = escada pronta.
  */
 @utility stair-rise {
@@ -474,7 +485,7 @@
   }
 }
 
-/* Rabisco (desktop): usar com motion-safe; fill backwards = invisível na espera, completo depois. */
+/* Rabisco (desktop e mobile): usar com motion-safe; fill backwards = invisível na espera, completo depois. */
 @utility scribble-draw {
   animation: scribble-draw var(--duration-scribble-draw)
     var(--ease-scribble-draw) var(--scribble-draw-delay) backwards;
@@ -534,6 +545,76 @@
   --track-from-opacity: var(--track-seal-from-opacity);
   --track-from-scale: var(--track-seal-from-scale);
   @variant lg {
+    @variant motion-safe {
+      [data-track-state='idle'] & {
+        opacity: var(--track-from-opacity);
+        transform: scale(var(--track-from-scale));
+      }
+      [data-track-state='play'] & {
+        animation: track-node-pop var(--duration-track-pop)
+          var(--ease-track-pop) backwards;
+        animation-delay: calc(
+          var(--track-start-delay) + var(--track-f, 0) *
+            var(--duration-track-line)
+        );
+      }
+    }
+  }
+}
+
+/*
+ * Trilha mobile (max-lg + motion-safe): linha vertical em segmentos (o ::before de cada etapa;
+ * o utilitário vai no <li>).
+ * Cada segmento cresce de cima para baixo no trecho dele: --track-seg-f = fração do início do
+ * segmento na linha, --track-seg-len-f = fração do comprimento (medidas no disparo). Com easing
+ * linear, os segmentos juntos equivalem a uma linha única de --duration-track-line.
+ * Círculos e selos: mesmo pop do desktop, com --track-f = fração da borda de cima na linha.
+ */
+@utility track-segment-motion-mobile {
+  @variant max-lg {
+    @variant motion-safe {
+      &::before {
+        transform-origin: center top;
+      }
+      [data-track-state='idle'] &::before {
+        transform: scaleY(0);
+      }
+      [data-track-state='play'] &::before {
+        animation: track-segment-grow
+          calc(var(--track-seg-len-f, 1) * var(--duration-track-line))
+          var(--ease-track-line) backwards;
+        animation-delay: calc(
+          var(--track-start-delay) + var(--track-seg-f, 0) *
+            var(--duration-track-line)
+        );
+      }
+    }
+  }
+}
+@utility track-circle-motion-mobile {
+  --track-from-opacity: var(--track-circle-from-opacity);
+  --track-from-scale: var(--track-circle-from-scale);
+  @variant max-lg {
+    @variant motion-safe {
+      [data-track-state='idle'] & {
+        opacity: var(--track-from-opacity);
+        transform: scale(var(--track-from-scale));
+      }
+      [data-track-state='play'] & {
+        animation: track-node-pop var(--duration-track-pop)
+          var(--ease-track-pop) backwards;
+        animation-delay: calc(
+          var(--track-start-delay) + var(--track-f, 0) *
+            var(--duration-track-line)
+        );
+      }
+    }
+  }
+}
+@utility track-seal-motion-mobile {
+  --track-from-opacity: var(--track-seal-from-opacity);
+  --track-from-scale: var(--track-seal-from-scale);
+  @variant max-lg {
     @variant motion-safe {
       [data-track-state='idle'] & {
         opacity: var(--track-from-opacity);
@@ -691,6 +772,11 @@
 @keyframes track-line-grow {
   from {
     transform: scaleX(0);
+  }
+}
+@keyframes track-segment-grow {
+  from {
+    transform: scaleY(0);
   }
 }
 @keyframes track-node-pop {

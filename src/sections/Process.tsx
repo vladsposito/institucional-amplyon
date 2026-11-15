@@ -52,21 +52,26 @@ export function Process() {
             return (
               <li
                 key={step.title}
+                data-track-segment={isLast ? undefined : ''}
                 className={cn(
                   'relative grid grid-cols-[auto_1fr] gap-x-4 lg:block',
-                  // trilho vertical (mobile): do centro do círculo ao fim do item
+                  // trilho vertical (mobile): do centro do círculo ao fim do item; um segmento da linha
                   !isLast &&
-                    'before:absolute before:top-5 before:bottom-0 before:left-4.75 before:w-0.5 before:bg-line-strong before:content-[""] lg:before:hidden',
+                    'track-segment-motion-mobile before:absolute before:top-5 before:bottom-0 before:left-4.75 before:w-0.5 before:bg-line-strong before:content-[""] lg:before:hidden',
                 )}
               >
-                {/* data-track-anchor: borda esquerda medida no disparo do motion (wrapper sem scale). */}
+                {/*
+                  data-track-anchor: borda esquerda medida no disparo do motion (wrapper sem scale).
+                  data-track-anchor-mobile: no mobile mede a borda de cima do primeiro filho.
+                */}
                 <div
                   data-track-anchor
+                  data-track-anchor-mobile="circle"
                   className="relative z-10 lg:flex lg:h-14 lg:items-center"
                 >
                   <span
                     className={cn(
-                      'grid size-10 track-circle-motion place-items-center rounded-pill border-2 border-sage type-step-mobile lg:size-14 lg:type-metric',
+                      'grid size-10 track-circle-motion track-circle-motion-mobile place-items-center rounded-pill border-2 border-sage type-step-mobile lg:size-14 lg:type-metric',
                       isLast
                         ? 'bg-mint text-on-amp'
                         : 'bg-surface text-ink lg:bg-ground',
@@ -110,8 +115,15 @@ export function Process() {
                     <span className="type-title text-mint">{step.receive}</span>
                   </div>
                   {isLast && (
-                    <div className="pt-2 lg:hidden">
-                      <Badge variant="outline" size="sm">
+                    <div
+                      data-track-anchor-mobile="seal"
+                      className="pt-2 lg:hidden"
+                    >
+                      <Badge
+                        variant="outline"
+                        size="sm"
+                        className="track-seal-motion-mobile"
+                      >
                         Repete todo mês
                       </Badge>
                     </div>
@@ -119,8 +131,13 @@ export function Process() {
                 </div>
 
                 {!isLast && (
-                  <div className="relative z-10 col-span-2 py-5 lg:hidden">
-                    <Badge size="sm">seu ok</Badge>
+                  <div
+                    data-track-anchor-mobile="seal"
+                    className="relative z-10 col-span-2 py-5 lg:hidden"
+                  >
+                    <Badge size="sm" className="track-seal-motion-mobile">
+                      seu ok
+                    </Badge>
                   </div>
                 )}
               </li>

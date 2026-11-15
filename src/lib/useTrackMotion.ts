@@ -5,11 +5,28 @@ export type TrackState = 'idle' | 'play'
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 /** Mesmo valor do token --track-trigger-ratio; só é usado se o token não puder ser lido. */
 const FALLBACK_TRIGGER_RATIO = 0.6
+/** Mesmo valor do token --track-trigger-margin-mobile; só é usado se o token não puder ser lido. */
+const FALLBACK_TRIGGER_MARGIN_MOBILE = '0px 0px -35% 0px'
+
+const clamp01 = (value: number) => Math.min(1, Math.max(0, value))
+
+/** Borda de cima sem o scale do estado inicial: o centro não muda com scale a partir do centro. */
+const unscaledTop = (el: Element) => {
+  const rect = el.getBoundingClientRect()
+  return (
+    (rect.top + rect.bottom) / 2 - parseFloat(getComputedStyle(el).height) / 2
+  )
+}
 
 /**
- * Motion da trilha (docs/motion/trilha-referencia.html): dispara uma vez, quando a faixa da trilha
- * fica --track-trigger-ratio visível. No disparo mede, para cada [data-track-anchor], a fração da
- * borda esquerda ao longo da linha e grava em --track-f; os tempos ficam nos tokens do CSS.
+ * Motion da trilha. Dispara uma vez e grava as frações medidas; os tempos ficam nos tokens do CSS.
+ * Desktop (docs/motion/trilha-referencia.html): quando a faixa fica --track-trigger-ratio visível,
+ * mede para cada [data-track-anchor] a fração da borda esquerda ao longo da linha (--track-f).
+ * Mobile (docs/motion/trilha-mobile-referencia.html): quando o topo da lista passa da margem
+ * --track-trigger-margin-mobile, mede de cima para baixo. A linha vai do centro do 1º ao centro do
+ * último círculo; cada [data-track-anchor-mobile] recebe a fração da borda de cima do primeiro filho
+ * e cada segmento (::before de [data-track-segment]) a fração do início e do comprimento.
+ * A faixa do desktop tem display none no mobile: é ela que diz qual layout está ativo.
  * Com reduced motion não observa (o CSS mostra a trilha pronta).
  */
 export function useTrackMotion() {
@@ -25,16 +42,20 @@ export function useTrackMotion() {
     if (!list || !band || !line) return
     if (window.matchMedia(REDUCED_MOTION_QUERY).matches) return
 
+    const rootStyle = getComputedStyle(document.documentElement)
     const tokenRatio = parseFloat(
-      getComputedStyle(document.documentElement).getPropertyValue(
-        '--track-trigger-ratio',
-      ),
+      rootStyle.getPropertyValue('--track-trigger-ratio'),
     )
     const threshold = Number.isFinite(tokenRatio)
       ? tokenRatio
       : FALLBACK_TRIGGER_RATIO
+    const marginMobile =
+      rootStyle.getPropertyValue('--track-trigger-margin-mobile').trim() ||
+      FALLBACK_TRIGGER_MARGIN_MOBILE
 
-    const measure = () => {
+    const isDesktopLayout = () => getComputedStyle(band).display !== 'none'
+
+    const measureDesktop = () => {
       // A linha termina, por construção, onde começa o selo-espaçador ao lado dela. Medir por ele
       // dá o comprimento exato (sem arredondar) e não é afetado pelo scaleX(0) do estado inicial.
       const start = band.getBoundingClientRect().left
@@ -46,24 +67,77 @@ export function useTrackMotion() {
         .querySelectorAll<HTMLElement>('[data-track-anchor]')
         .forEach((anchor) => {
           const x = anchor.getBoundingClientRect().left - start
-          const fraction = Math.min(1, Math.max(0, x / length))
+          anchor.style.setProperty('--track-f', String(clamp01(x / length)))
+        })
+    }
+
+    const measureMobile = () => {
+      const segments = list.querySelectorAll<HTMLElement>(
+        '[data-track-segment]',
+      )
+      const circles = list.querySelectorAll(
+        '[data-track-anchor-mobile="circle"] > :first-child',
+      )
+      const firstSegment = segments[0]
+      const lastCircle = circles[circles.length - 1]
+      if (!firstSegment || !lastCircle) return
+      const segmentGeometry = (segment: HTMLElement) => {
+        const style = getComputedStyle(segment, '::before')
+        return {
+          top: segment.getBoundingClientRect().top + parseFloat(style.top),
+          height: parseFloat(style.height),
+        }
+      }
+      const lineTop = segmentGeometry(firstSegment).top
+      const lastRect = lastCircle.getBoundingClientRect()
+      const length = (lastRect.top + lastRect.bottom) / 2 - lineTop
+      segments.forEach((segment) => {
+        const { top, height } = segmentGeometry(segment)
+        segment.style.setProperty(
+          '--track-seg-f',
+          String((top - lineTop) / length),
+        )
+        segment.style.setProperty('--track-seg-len-f', String(height / length))
+      })
+      list
+        .querySelectorAll<HTMLElement>('[data-track-anchor-mobile]')
+        .forEach((anchor) => {
+          const node = anchor.firstElementChild
+          if (!node) return
+          const fraction = clamp01((unscaledTop(node) - lineTop) / length)
           anchor.style.setProperty('--track-f', String(fraction))
         })
     }
 
-    // A faixa só existe no desktop (display none no mobile), então no mobile nunca dispara.
-    const observer = new IntersectionObserver(
+    const observers: IntersectionObserver[] = []
+    const play = (measure: () => void) => {
+      measure()
+      setState('play')
+      observers.forEach((observer) => observer.disconnect())
+    }
+
+    // Desktop: observa a faixa (display none no mobile, então lá nunca chega ao threshold).
+    const desktopObserver = new IntersectionObserver(
       (entries) => {
         const entry = entries[0]
         if (!entry || entry.intersectionRatio < threshold) return
-        measure()
-        setState('play')
-        observer.disconnect()
+        play(measureDesktop)
       },
       { threshold },
     )
-    observer.observe(band)
-    return () => observer.disconnect()
+    // Mobile: observa a lista inteira; ignora enquanto o layout ativo for o do desktop.
+    const mobileObserver = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0]
+        if (!entry?.isIntersecting || isDesktopLayout()) return
+        play(measureMobile)
+      },
+      { threshold: 0, rootMargin: marginMobile },
+    )
+    observers.push(desktopObserver, mobileObserver)
+    desktopObserver.observe(band)
+    mobileObserver.observe(list)
+    return () => observers.forEach((observer) => observer.disconnect())
   }, [])
 
   return { listRef, bandRef, lineRef, state }
