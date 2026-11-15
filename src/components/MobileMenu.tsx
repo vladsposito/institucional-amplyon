@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent } from 'react'
 import { ArrowRight, X } from 'lucide-react'
 import { Button } from '@/components/Button'
+import { IconButton } from '@/components/IconButton'
 import { Logo } from '@/components/Logo'
 import { NAV_ITEMS, SECTION_IDS } from '@/lib/nav'
 
@@ -26,6 +27,35 @@ export function MobileMenu({ open, onClose, onNavigate }: MobileMenuProps) {
       document.body.style.overflow = previousOverflow
     }
   }, [open])
+
+  // Rolar com o menu aberto fecha o menu (a página fica travada só enquanto ele está visível).
+  // Efeito separado: onClose muda a cada render e não pode refazer o foco inicial acima.
+  useEffect(() => {
+    if (!open) return
+    let startY: number | null = null
+    const onWheel = (event: WheelEvent) => {
+      if (event.deltaY !== 0) onClose()
+    }
+    const onTouchStart = (event: TouchEvent) => {
+      startY = event.touches[0]?.clientY ?? null
+    }
+    const onTouchMove = (event: TouchEvent) => {
+      const y = event.touches[0]?.clientY
+      // limiar evita que um toque simples num link feche o menu
+      if (startY !== null && y !== undefined && Math.abs(y - startY) > 10) {
+        startY = null
+        onClose()
+      }
+    }
+    window.addEventListener('wheel', onWheel, { passive: true })
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchmove', onTouchMove, { passive: true })
+    return () => {
+      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchmove', onTouchMove)
+    }
+  }, [open, onClose])
 
   if (!open) return null
 
@@ -68,7 +98,7 @@ export function MobileMenu({ open, onClose, onNavigate }: MobileMenuProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Menu"
-        className="absolute inset-x-(--gutter) top-3 mx-auto max-w-(--max-w-column) overflow-hidden rounded-panel border border-line bg-surface/(--opacity-glass) backdrop-blur-glass"
+        className="absolute inset-x-(--gutter) top-3 mx-auto max-w-(--max-w-column) overflow-hidden rounded-panel border border-line glass"
       >
         <div className="flex items-center justify-between py-1.5 pr-1.5 pl-4">
           <Logo size="sm" />
@@ -83,14 +113,12 @@ export function MobileMenu({ open, onClose, onNavigate }: MobileMenuProps) {
             >
               Orçamento
             </Button>
-            <button
-              type="button"
-              aria-label="Fechar menu"
+            <IconButton
+              label="Fechar menu"
               onClick={onClose}
-              className="relative grid size-9 place-items-center rounded-pill bg-amp-soft text-ink before:absolute before:-inset-1 before:content-['']"
-            >
-              <X size={20} strokeWidth={2} aria-hidden="true" />
-            </button>
+              icon={<X size={20} strokeWidth={2} aria-hidden="true" />}
+              className="bg-amp-soft"
+            />
           </div>
         </div>
         <nav aria-label="Principal">

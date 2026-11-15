@@ -55,8 +55,8 @@ export function Hero() {
         </div>
       </Container>
 
-      {/* Desktop: escada ancorada na base do hero. */}
-      <div className="absolute inset-x-0 bottom-0 hidden lg:block">
+      {/* Desktop: escada ancorada na base do hero. Decorativa: não pode capturar o ponteiro dos botões. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 hidden lg:block">
         <Container>
           <BrandStair variant="desktop" />
         </Container>

@@ -55,7 +55,11 @@
   --breakpoint-xs: 22.5rem;
 
   --blur-*: initial;
-  --blur-glass: 10px;
+  --blur-glass: 20px;
+
+  /* Interação dos botões (hover/active) */
+  --duration-control: 180ms;
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
 
   /* Text styles (tamanho / line-height / tracking). Família e peso entram nos utilitários type-*. */
   --text-*: initial;
@@ -127,6 +131,8 @@
   --bubble-max-mobile: 272px;
   --border-badge: 1.5px;
   --opacity-glass: 78%;
+  /* sem backdrop-filter: cor sólida mais opaca para manter a leitura */
+  --opacity-glass-fallback: 95%;
   --opacity-scrim: 60%;
   --gap-title-line3-desktop: 18px;
   --gap-title-line3-mobile: 16px;
@@ -253,6 +259,37 @@
     var(--color-teal) 50%,
     var(--color-sage) 83.333%
   );
+}
+
+/* Vidro do header e do menu mobile: mesma cor, opacidade e blur nos dois breakpoints. */
+@utility glass {
+  background-color: color-mix(
+    in srgb,
+    var(--color-surface) var(--opacity-glass),
+    transparent
+  );
+  backdrop-filter: blur(var(--blur-glass));
+
+  @supports not (backdrop-filter: blur(0)) {
+    background-color: color-mix(
+      in srgb,
+      var(--color-surface) var(--opacity-glass-fallback),
+      transparent
+    );
+  }
+}
+
+/* Transição dos botões: só deslocamento e cores. Uma seta com [data-arrow] acompanha. */
+@utility interactive {
+  transition-property: translate, background-color, border-color, color;
+  transition-duration: var(--duration-control);
+  transition-timing-function: var(--ease-out);
+
+  & [data-arrow] {
+    transition-property: translate;
+    transition-duration: var(--duration-control);
+    transition-timing-function: var(--ease-out);
+  }
 }
 
 @layer base {
