@@ -3,6 +3,7 @@ import { flushSync } from 'react-dom'
 import { Menu } from 'lucide-react'
 import { Button } from '@/components/Button'
 import { Container } from '@/components/Container'
+import { IconButton } from '@/components/IconButton'
 import { Logo } from '@/components/Logo'
 import { MobileMenu } from '@/components/MobileMenu'
 import { NAV_ITEMS, SECTION_IDS } from '@/lib/nav'
@@ -50,7 +51,7 @@ export function Header({ menuOpen, onMenuOpenChange }: HeaderProps) {
       <Container>
         <div
           inert={menuOpen}
-          className="flex items-center justify-between rounded-pill border border-line bg-surface/(--opacity-glass) py-1.5 pr-1.5 pl-4 backdrop-blur-glass lg:bg-surface lg:py-2 lg:pr-2 lg:pl-5 lg:backdrop-blur-none"
+          className="flex items-center justify-between rounded-pill border border-line glass py-1.5 pr-1.5 pl-4 lg:py-2 lg:pr-2 lg:pl-5"
         >
           <a href="#topo" aria-label="Amplyon, início">
             <span className="lg:hidden">
@@ -65,7 +66,10 @@ export function Header({ menuOpen, onMenuOpenChange }: HeaderProps) {
             <ul className="flex gap-8">
               {NAV_ITEMS.map((item) => (
                 <li key={item.id}>
-                  <a href={`#${item.id}`} className="type-body text-ink-muted">
+                  <a
+                    href={`#${item.id}`}
+                    className="type-body text-ink-muted interactive hover:text-ink"
+                  >
                     {item.label}
                   </a>
                 </li>
@@ -84,17 +88,15 @@ export function Header({ menuOpen, onMenuOpenChange }: HeaderProps) {
                 Quero um orçamento
               </Button>
             </span>
-            <button
+            <IconButton
               ref={menuButtonRef}
-              type="button"
-              aria-label="Abrir menu"
-              aria-expanded={menuOpen}
-              aria-controls="mobile-menu"
+              label="Abrir menu"
+              expanded={menuOpen}
+              controls="mobile-menu"
               onClick={() => onMenuOpenChange(true)}
-              className="relative grid size-9 place-items-center rounded-pill text-ink before:absolute before:-inset-1 before:content-[''] lg:hidden"
-            >
-              <Menu size={20} strokeWidth={2.4} aria-hidden="true" />
-            </button>
+              icon={<Menu size={20} strokeWidth={2.4} aria-hidden="true" />}
+              className="lg:hidden"
+            />
           </div>
         </div>
       </Container>
