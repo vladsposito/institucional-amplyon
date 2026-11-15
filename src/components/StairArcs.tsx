@@ -2,6 +2,7 @@
  * Arcos concêntricos no canto superior direito da barra mint (Figma 16:64–67 desktop, 17:65–67 mobile).
  * Círculos centrados no canto; o viewBox mostra só o quadrante visível e a barra recorta o excesso.
  * Traço 10 (desktop) / 7 (mobile), cor on-amp via currentColor.
+ * Largura em proporção da barra: quando a escada encolhe, arcos e traço encolhem junto.
  */
 export function StairArcs({ variant }: { variant: 'desktop' | 'mobile' }) {
   if (variant === 'desktop') {
@@ -9,9 +10,7 @@ export function StairArcs({ variant }: { variant: 'desktop' | 'mobile' }) {
       <svg
         aria-hidden="true"
         focusable="false"
-        className="absolute top-0 right-0 text-on-amp"
-        width="132"
-        height="132"
+        className="absolute top-0 right-0 h-auto w-(--stair-arcs-w) text-on-amp"
         viewBox="-132 0 132 132"
         fill="none"
         stroke="currentColor"
@@ -28,9 +27,7 @@ export function StairArcs({ variant }: { variant: 'desktop' | 'mobile' }) {
     <svg
       aria-hidden="true"
       focusable="false"
-      className="absolute top-0 right-0 text-on-amp"
-      width="62"
-      height="62"
+      className="absolute top-0 right-0 h-auto w-(--stair-arcs-w-mobile) text-on-amp"
       viewBox="-62 0 62 62"
       fill="none"
       stroke="currentColor"

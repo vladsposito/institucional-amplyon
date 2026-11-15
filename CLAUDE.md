@@ -28,3 +28,4 @@ React + Vite + TypeScript (strict) · Tailwind CSS v4 (`@tailwindcss/vite`, sem 
 - Estilo só com Tailwind e tokens do `@theme`. Nada de cor ou fonte hardcoded.
 - Nunca trocar uma fonte do design sem aprovação.
 - Componentes funcionais com TypeScript, sem `any`.
+- Hero: h1 e escada precisam caber na primeira tela, na área útil real do navegador (`svh`). Em telas baixas, primeiro diminui o padding entre o header e o h1, depois a escada encolhe por igual (presa à direita no desktop, centralizada no mobile, nunca achatada). No mobile a descrição usa `type-body-lg-mobile` (16/24) para sobrar altura para a escada. Tokens `--hero-*` e `--stair-*` em `index.css`; em telas altas o hero fica igual ao Figma.

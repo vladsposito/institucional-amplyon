@@ -142,6 +142,30 @@
   --scribble-h-mobile: 16px;
   /* largura do título mobile acompanha a tela: 68px em 390 (358 úteis) */
   --fluid-display-xl-mobile: calc((100vw - 2 * var(--gutter)) * 0.18994);
+  --fluid-display-xl-mobile-size: min(
+    var(--text-display-xl-mobile),
+    var(--fluid-display-xl-mobile)
+  );
+
+  /*
+   * Hero na primeira tela (área útil real do navegador, em svh).
+   * Em telas baixas, primeiro o padding entre o header e o h1 diminui; só depois a escada encolhe.
+   * Valores "max" = Figma (16:44 desktop, 17:44 mobile).
+   */
+  --hero-h-max: 760px;
+  --hero-h-min: 560px;
+  --hero-pt-max: 126px;
+  --hero-pt-min: 24px;
+  /* bloco de texto do desktop (título + parágrafo + botões = 412) + folga até o topo da teal */
+  --hero-text-reserve: 436px;
+  --hero-pt-mobile-max: 36px;
+  --hero-pt-mobile-min: 8px;
+  --hero-gap-mobile-max: 24px;
+  --hero-gap-mobile-min: 16px;
+  /* respiro entre a base da escada e a borda da tela no mobile */
+  --hero-fold-safety: 8px;
+  --stair-h-min: 120px;
+  --stair-h-min-mobile: 120px;
 
   /* Proporção das barras da escada da marca (largura / altura) */
   --stair-ratio-1: 280 / 90;
@@ -152,6 +176,14 @@
   --stair-ratio-m-2: 91.5 / 100;
   --stair-ratio-m-3: 91.5 / 145;
   --stair-ratio-m-4: 91.5 / 190;
+  /* Escada inteira (largura / altura) e gap proporcional: ela só encolhe por igual, nunca achata */
+  --stair-w-ratio: 1162 / 320;
+  --stair-w-ratio-mobile: 390 / 190;
+  --stair-gap: calc(14 / 1162 * 100%);
+  --stair-gap-mobile: calc(8 / 390 * 100%);
+  /* Arcos do mint em proporção da barra (132 de 280 no desktop, 62 de 91.5 no mobile) */
+  --stair-arcs-w: calc(132 / 280 * 100%);
+  --stair-arcs-w-mobile: calc(62 / 91.5 * 100%);
 
   /* Símbolo do logo, em em (base = tamanho do texto do logo, 22px) */
   --logo-bar-w: calc(5em / 22);
@@ -172,11 +204,61 @@
   --container-column: calc(var(--max-w-column) + 2 * var(--gutter));
   /* ponto médio entre o círculo (3.5rem) e o próximo círculo (coluna + gap 1.5rem) do Process */
   --seal-mid: calc((var(--spacing) * 14 + 100% + var(--spacing) * 6) / 2);
+
+  /* Hero desktop: acompanha a altura útil; o padding cai 1:1 até o mínimo, depois a escada encolhe. */
+  --hero-h: clamp(
+    var(--hero-h-min),
+    100svh - var(--height-topbar),
+    var(--hero-h-max)
+  );
+  --hero-pt: clamp(
+    var(--hero-pt-min),
+    var(--hero-h) - (var(--hero-h-max) - var(--hero-pt-max)),
+    var(--hero-pt-max)
+  );
+  /* x2: o topo da teal (metade da altura da escada) precisa ficar abaixo dos botões */
+  --stair-h: max(
+    var(--stair-h-min),
+    2 * (var(--hero-h) - var(--hero-pt) - var(--hero-text-reserve))
+  );
+  --stair-w: min(100%, var(--stair-h) * var(--stair-w-ratio));
+
+  /* Hero mobile: título fluido (4 linhas + rabisco) e parágrafo com 5/4/3 linhas conforme a largura. */
+  --hero-pt-m: var(--hero-pt-mobile-max);
+  --hero-gap-m: var(--hero-gap-mobile-max);
+  --hero-title-h-m: calc(
+    4 * var(--fluid-display-xl-mobile-size) * 67 / 68 +
+      var(--scribble-h-mobile) - var(--scribble-overlap-mobile)
+  );
+  --hero-copy-h-m: calc(5 * var(--text-body--line-height));
+  --stair-h-m: max(
+    var(--stair-h-min-mobile),
+    100svh - var(--height-topbar-mobile) - var(--hero-pt-m) -
+      var(--hero-title-h-m) - var(--hero-copy-h-m) - 2 * var(--hero-gap-m) -
+      var(--hero-fold-safety)
+  );
+  --stair-w-m: min(100%, var(--stair-h-m) * var(--stair-w-ratio-mobile));
+}
+
+/* o parágrafo do hero (type-body-lg-mobile) cabe em 4 linhas a partir de ~350px de largura */
+@media (width >= 22.5rem) {
+  :root {
+    --hero-copy-h-m: calc(4 * var(--text-body--line-height));
+  }
 }
 
 @media (width >= 48rem) {
   :root {
     --gutter: 32px;
+    --hero-copy-h-m: calc(3 * var(--text-body--line-height));
+  }
+}
+
+/* tela baixa (mobile): compacta o padding e os gaps do hero antes de encolher a escada */
+@media (height < 46rem) {
+  :root {
+    --hero-pt-m: var(--hero-pt-mobile-min);
+    --hero-gap-m: var(--hero-gap-mobile-min);
   }
 }
 
@@ -185,7 +267,7 @@
 }
 @utility type-display-xl-mobile {
   @apply font-display font-extrabold;
-  font-size: min(var(--text-display-xl-mobile), var(--fluid-display-xl-mobile));
+  font-size: var(--fluid-display-xl-mobile-size);
   line-height: var(--text-display-xl-mobile--line-height);
   letter-spacing: var(--text-display-xl-mobile--letter-spacing);
 }
@@ -215,6 +297,10 @@
 }
 @utility type-body-lg {
   @apply font-sans text-body-lg font-medium;
+}
+/* descrição do hero no mobile: mesma família e peso do body-lg, no tamanho do body */
+@utility type-body-lg-mobile {
+  @apply font-sans text-body font-medium;
 }
 @utility type-title {
   @apply font-sans text-title font-bold;

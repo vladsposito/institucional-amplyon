@@ -8,9 +8,10 @@ export function Hero() {
   return (
     <section
       aria-labelledby="hero-title"
-      className="relative overflow-hidden bg-ground lg:min-h-190"
+      className="relative overflow-hidden bg-ground lg:min-h-(--hero-h)"
     >
-      <Container className="flex flex-col items-center gap-6 pt-9 pb-10 text-center lg:items-start lg:gap-7 lg:pt-31.5 lg:pb-0 lg:text-left">
+      {/* Padding superior e gaps diminuem em telas baixas (tokens --hero-* em index.css). */}
+      <Container className="flex flex-col items-center gap-(--hero-gap-m) pt-(--hero-pt-m) pb-10 text-center lg:items-start lg:gap-7 lg:pt-(--hero-pt) lg:pb-0 lg:text-left">
         {/* Um único h1; os espaços entre as linhas mantêm a leitura contínua. */}
         <h1
           id="hero-title"
@@ -24,7 +25,8 @@ export function Hero() {
           <span className="block">pra ele.</span>
         </h1>
 
-        <p className="max-w-130 type-body-lg text-ink-muted">
+        {/* Mobile: descrição menor (16/24) para sobrar altura para a escada na primeira tela. */}
+        <p className="max-w-130 type-body-lg-mobile text-ink-muted lg:type-body-lg">
           Site, landing page ou sistema de um lado. Anúncio no Google e na Meta
           do outro. Aqui os dois lados são feitos pelo mesmo time, do primeiro
           clique até a venda.
