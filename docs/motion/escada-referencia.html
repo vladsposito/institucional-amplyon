@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Referência: motion 1, entrada da escada (opção A)</title>
+<!--
+  REFERÊNCIA OFICIAL DO MOTION 1 (opção A, "Subida firme").
+  Esta página é a fonte de verdade da animação. A implementação no site deve ser idêntica em
+  geometria, tempos, easing e ordem. Não altere os números sem aprovação do Vlad.
+
+  ESPECIFICAÇÃO
+  - Geometria (viewBox 1162 x 320, igual ao frame "Escada da marca" 16:59 do Figma, desktop):
+      pine 0,230   280x90   #2C5D57
+      teal 294,160 280x160  #3A766F
+      sage 588,80  280x240  #7FBFB6
+      mint 882,0   280x320  #D4FBF6   raio 14
+  - Degraus: cada um sobe de baixo para cima (translateY da altura até 0), parando na linha de base.
+    O degrau está desenhado 14px mais alto que o necessário para os cantos de baixo ficarem retos
+    (ficam abaixo da linha de corte). O recorte é feito pela borda da escada (overflow hidden).
+    duração 700 ms, easing cubic-bezier(.22,1,.36,1), atraso de 180 ms entre degraus
+    (inícios em 0, 180, 360 e 540 ms; o último termina em 1240 ms).
+  - Arcos (detalhe do último degrau): 4 círculos concêntricos centrados no canto superior direito
+    do degrau mint (1162, 0), raios 30, 64, 98 e 132, traço de 8 na cor do fundo (ground #0A2422),
+    sem preenchimento, recortados pelo retângulo do degrau (raio 14).
+    Começam em 1100 ms, de dentro para fora, atraso de 90 ms entre eles, duração 500 ms,
+    easing cubic-bezier(.22,1,.36,1), animando scale de 0 a 1 com origem no canto (1162, 0).
+    Termina em 1870 ms.
+  - Toca uma vez ao carregar a página. Com prefers-reduced-motion: reduce, a escada aparece pronta.
+  - Estado base (sem animação) = escada pronta e completa.
+-->
+<style>
+  :root { --ground:#0A2422; --ink:#E4FBF8; --amp:#FFC94A; --on-amp:#0A2422; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font: 400 16px/24px system-ui, sans-serif;
+         min-height: 100vh; display: flex; flex-direction: column; justify-content: center; gap: 24px; padding: 24px; }
+  .stage { max-width: 1162px; width: 100%; margin-inline: auto; }
+  svg.stairs { display: block; width: 100%; height: auto; }
+  button { align-self: center; height: 48px; padding: 0 24px; border-radius: 999px; border: 0; background: var(--amp);
+           color: var(--on-amp); font: 700 16px/1 system-ui, sans-serif; cursor: pointer; }
+  button:focus-visible { outline: 2px solid var(--amp); outline-offset: 2px; }
+
+  svg.stairs .bar { transform: translateY(0); }
+  svg.play .bar { animation: rise 700ms cubic-bezier(.22,1,.36,1) backwards; animation-delay: calc(var(--i) * 180ms); }
+  @keyframes rise { from { transform: translateY(var(--h)); } }
+  .ring { fill: none; stroke: var(--ground); stroke-width: 8; transform-box: view-box; transform-origin: 1162px 0; }
+  svg.play .ring { animation: ringScale 500ms cubic-bezier(.22,1,.36,1) backwards; animation-delay: calc(1100ms + var(--j) * 90ms); }
+  @keyframes ringScale { from { transform: scale(0); } }
+  @media (prefers-reduced-motion: reduce) { svg.play .bar, svg.play .ring { animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="stage">
+  <svg class="stairs" id="stairs" viewBox="0 0 1162 320" role="img" aria-label="Escada da marca com quatro degraus ascendentes e arcos concêntricos no último">
+    <defs><clipPath id="clip-mint"><rect x="882" y="0" width="280" height="334" rx="14"/></clipPath></defs>
+    <g class="bar" style="--i:0;--h:104px"><rect x="0" y="230" width="280" height="104" rx="14" fill="#2C5D57"/></g>
+    <g class="bar" style="--i:1;--h:174px"><rect x="294" y="160" width="280" height="174" rx="14" fill="#3A766F"/></g>
+    <g class="bar" style="--i:2;--h:254px"><rect x="588" y="80" width="280" height="254" rx="14" fill="#7FBFB6"/></g>
+    <g class="bar" style="--i:3;--h:334px">
+      <rect x="882" y="0" width="280" height="334" rx="14" fill="#D4FBF6"/>
+      <g clip-path="url(#clip-mint)">
+        <path class="ring" style="--j:0" d="M1132 0A30 30 0 0 0 1162 30"/>
+        <path class="ring" style="--j:1" d="M1098 0A64 64 0 0 0 1162 64"/>
+        <path class="ring" style="--j:2" d="M1064 0A98 98 0 0 0 1162 98"/>
+        <path class="ring" style="--j:3" d="M1030 0A132 132 0 0 0 1162 132"/>
+      </g>
+    </g>
+  </svg>
+</div>
+<button id="replay" type="button">Reproduzir de novo</button>
+<script>
+  var s = document.getElementById('stairs');
+  function play() { s.classList.remove('play'); void s.getBoundingClientRect(); s.classList.add('play'); }
+  document.getElementById('replay').addEventListener('click', play);
+  play();
+</script>
+</body>
+</html>

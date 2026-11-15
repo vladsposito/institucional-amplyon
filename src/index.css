@@ -167,11 +167,7 @@
   --stair-h-min: 120px;
   --stair-h-min-mobile: 120px;
 
-  /* Proporção das barras da escada da marca (largura / altura) */
-  --stair-ratio-1: 280 / 90;
-  --stair-ratio-2: 280 / 160;
-  --stair-ratio-3: 280 / 240;
-  --stair-ratio-4: 280 / 320;
+  /* Proporção das barras da escada mobile (largura / altura); a desktop é um SVG em viewBox 1162 x 320 */
   --stair-ratio-m-1: 91.5 / 60;
   --stair-ratio-m-2: 91.5 / 100;
   --stair-ratio-m-3: 91.5 / 145;
@@ -179,11 +175,22 @@
   /* Escada inteira (largura / altura) e gap proporcional: ela só encolhe por igual, nunca achata */
   --stair-w-ratio: 1162 / 320;
   --stair-w-ratio-mobile: 390 / 190;
-  --stair-gap: calc(14 / 1162 * 100%);
   --stair-gap-mobile: calc(8 / 390 * 100%);
-  /* Arcos do mint em proporção da barra (132 de 280 no desktop, 62 de 91.5 no mobile) */
-  --stair-arcs-w: calc(132 / 280 * 100%);
+  /* Arcos do mint mobile em proporção da barra (62 de 91.5) */
   --stair-arcs-w-mobile: calc(62 / 91.5 * 100%);
+
+  /*
+   * Motion de entrada da escada (opção A, "Subida firme").
+   * Fonte de verdade: docs/motion/escada-referencia.html. Não alterar sem aprovação.
+   * Degraus: 700 ms cada, 180 ms entre inícios (último termina em 1240 ms).
+   * Arcos: começam em 1100 ms, 90 ms entre eles, 500 ms cada (terminam em 1870 ms).
+   */
+  --ease-stair: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-stair-rise: 700ms;
+  --stair-rise-stagger: 180ms;
+  --duration-stair-arc: 500ms;
+  --stair-arcs-delay: 1100ms;
+  --stair-arcs-stagger: 90ms;
 
   /* Símbolo do logo, em em (base = tamanho do texto do logo, 22px) */
   --logo-bar-w: calc(5em / 22);
@@ -375,6 +382,34 @@
     transition-property: translate;
     transition-duration: var(--duration-control);
     transition-timing-function: var(--ease-out);
+  }
+}
+
+/*
+ * Entrada da escada da hero (desktop). Usar com motion-safe: com reduced motion fica a escada pronta.
+ * --i = índice do degrau, --h = deslocamento inicial (altura do degrau, em unidades do viewBox).
+ * --j = índice do arco, de dentro para fora. fill-mode backwards: estado base = escada pronta.
+ */
+@utility stair-rise {
+  animation: stair-rise var(--duration-stair-rise) var(--ease-stair) backwards;
+  animation-delay: calc(var(--i) * var(--stair-rise-stagger));
+}
+@utility stair-arc-grow {
+  animation: stair-arc-grow var(--duration-stair-arc) var(--ease-stair)
+    backwards;
+  animation-delay: calc(
+    var(--stair-arcs-delay) + var(--j) * var(--stair-arcs-stagger)
+  );
+}
+
+@keyframes stair-rise {
+  from {
+    transform: translateY(var(--h));
+  }
+}
+@keyframes stair-arc-grow {
+  from {
+    transform: scale(0);
   }
 }
 
