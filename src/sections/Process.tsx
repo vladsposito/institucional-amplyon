@@ -4,10 +4,14 @@ import { SectionHeading } from '@/components/SectionHeading'
 import { PROCESS_INTRO, PROCESS_STEPS } from '@/lib/content'
 import { SECTION_IDS } from '@/lib/nav'
 import { cn } from '@/lib/cn'
+import { useTrackMotion } from '@/lib/useTrackMotion'
+
+const REPEAT_LABEL = 'Repete todo mês'
 
 /** "Como um projeto anda": trilha de 4 etapas (horizontal no desktop, vertical no mobile). */
 export function Process() {
   const lastIndex = PROCESS_STEPS.length - 1
+  const { listRef, bandRef, lineRef, state } = useTrackMotion()
   return (
     <section
       id={SECTION_IDS.process}
@@ -21,12 +25,28 @@ export function Process() {
           description={PROCESS_INTRO.description}
         />
 
-        <ol className="relative mt-8 grid lg:mt-14 lg:grid-cols-4 lg:gap-6">
-          {/* Linha única do trilho (desktop), por trás dos círculos e do selo final. */}
+        <ol
+          ref={listRef}
+          data-track-state={state}
+          className="relative mt-8 grid lg:mt-14 lg:grid-cols-4 lg:gap-6"
+        >
+          {/*
+            Faixa do trilho (desktop): a linha ocupa o espaço até uma cópia invisível do selo final,
+            então termina por construção na borda esquerda do selo "Repete todo mês" (preso à direita).
+          */}
           <span
+            ref={bandRef}
             aria-hidden="true"
-            className="absolute inset-x-0 top-6.75 hidden h-0.5 bg-line-strong lg:block"
-          />
+            className="absolute inset-x-0 top-0 hidden h-14 items-center lg:flex"
+          >
+            <span
+              ref={lineRef}
+              className="h-0.5 flex-1 track-line-motion rounded-pill bg-line-strong"
+            />
+            <Badge variant="outline" className="invisible">
+              {REPEAT_LABEL}
+            </Badge>
+          </span>
           {PROCESS_STEPS.map((step, index) => {
             const isLast = index === lastIndex
             return (
@@ -39,10 +59,14 @@ export function Process() {
                     'before:absolute before:top-5 before:bottom-0 before:left-4.75 before:w-0.5 before:bg-line-strong before:content-[""] lg:before:hidden',
                 )}
               >
-                <div className="relative z-10 lg:flex lg:h-14 lg:items-center">
+                {/* data-track-anchor: borda esquerda medida no disparo do motion (wrapper sem scale). */}
+                <div
+                  data-track-anchor
+                  className="relative z-10 lg:flex lg:h-14 lg:items-center"
+                >
                   <span
                     className={cn(
-                      'grid size-10 place-items-center rounded-pill border-2 border-sage type-step-mobile lg:size-14 lg:type-metric',
+                      'grid size-10 track-circle-motion place-items-center rounded-pill border-2 border-sage type-step-mobile lg:size-14 lg:type-metric',
                       isLast
                         ? 'bg-mint text-on-amp'
                         : 'bg-surface text-ink lg:bg-ground',
@@ -52,13 +76,21 @@ export function Process() {
                   </span>
                   {/* selo no ponto médio entre este círculo e o próximo (desktop) */}
                   {!isLast && (
-                    <span className="absolute top-3.5 left-(--seal-mid) hidden -translate-x-1/2 lg:block">
-                      <Badge>seu ok</Badge>
+                    <span
+                      data-track-anchor
+                      className="absolute top-3.5 left-(--seal-mid) hidden -translate-x-1/2 lg:block"
+                    >
+                      <Badge className="track-seal-motion">seu ok</Badge>
                     </span>
                   )}
                   {isLast && (
-                    <span className="top-3.125 absolute right-0 hidden lg:block">
-                      <Badge variant="outline">Repete todo mês</Badge>
+                    <span
+                      data-track-anchor
+                      className="top-3.125 absolute right-0 hidden lg:block"
+                    >
+                      <Badge variant="outline" className="track-seal-motion">
+                        {REPEAT_LABEL}
+                      </Badge>
                     </span>
                   )}
                 </div>

@@ -167,11 +167,7 @@
   --stair-h-min: 120px;
   --stair-h-min-mobile: 120px;
 
-  /* Proporção das barras da escada da marca (largura / altura) */
-  --stair-ratio-1: 280 / 90;
-  --stair-ratio-2: 280 / 160;
-  --stair-ratio-3: 280 / 240;
-  --stair-ratio-4: 280 / 320;
+  /* Proporção das barras da escada mobile (largura / altura); a desktop é um SVG em viewBox 1162 x 320 */
   --stair-ratio-m-1: 91.5 / 60;
   --stair-ratio-m-2: 91.5 / 100;
   --stair-ratio-m-3: 91.5 / 145;
@@ -179,11 +175,83 @@
   /* Escada inteira (largura / altura) e gap proporcional: ela só encolhe por igual, nunca achata */
   --stair-w-ratio: 1162 / 320;
   --stair-w-ratio-mobile: 390 / 190;
-  --stair-gap: calc(14 / 1162 * 100%);
   --stair-gap-mobile: calc(8 / 390 * 100%);
-  /* Arcos do mint em proporção da barra (132 de 280 no desktop, 62 de 91.5 no mobile) */
-  --stair-arcs-w: calc(132 / 280 * 100%);
+  /* Arcos do mint mobile em proporção da barra (62 de 91.5) */
   --stair-arcs-w-mobile: calc(62 / 91.5 * 100%);
+
+  /*
+   * Motion de entrada da escada (opção A, "Subida firme").
+   * Fonte de verdade: docs/motion/escada-referencia.html. Não alterar sem aprovação.
+   * Degraus: 700 ms cada, 180 ms entre inícios (último termina em 1240 ms).
+   * Arcos: começam em 1100 ms, 90 ms entre eles, 500 ms cada (terminam em 1870 ms).
+   */
+  --ease-stair: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-stair-rise: 700ms;
+  --stair-rise-stagger: 180ms;
+  --duration-stair-arc: 500ms;
+  --stair-arcs-delay: 1100ms;
+  --stair-arcs-stagger: 90ms;
+
+  /*
+   * Motion do rabisco sob "traz gente", desktop (opção B, "Fecha a cena").
+   * Fonte de verdade: docs/motion/rabisco-referencia.html. Não alterar sem aprovação.
+   * Traço desenhado como caneta (pathLength 1, dasharray 1 2, dashoffset 1.02 → 0), no MESMO relógio
+   * da escada: as duas animações CSS nascem no mesmo commit, então o atraso conta do zero da escada.
+   * 1.02 (e não 1) evita o pontinho da ponta redonda no primeiro quadro.
+   */
+  --scribble-draw-delay: 1300ms;
+  --duration-scribble-draw: 800ms;
+  --ease-scribble-draw: cubic-bezier(0.45, 0, 0.2, 1);
+  --scribble-dash-start: 1.02;
+
+  /*
+   * Motion da linha da trilha, desktop (opção A, "Contínua").
+   * Fonte de verdade: docs/motion/trilha-referencia.html. Não alterar sem aprovação.
+   * Dispara uma vez com a trilha 60% visível. A linha cresce em ritmo constante; cada etapa/selo
+   * acende quando a linha encosta nele: atraso = início + fração da posição na linha x duração.
+   */
+  --track-trigger-ratio: 0.6;
+  --track-start-delay: 200ms;
+  --duration-track-line: 2100ms;
+  --ease-track-line: linear;
+  --duration-track-pop: 320ms;
+  --ease-track-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --track-circle-from-opacity: 0.25;
+  --track-circle-from-scale: 0.92;
+  --track-seal-from-opacity: 0;
+  --track-seal-from-scale: 0.8;
+
+  /*
+   * Motion do menu mobile (opção A, "Suave"): abrir e fechar o painel único header + menu.
+   * Fonte de verdade do MOVIMENTO: docs/motion/menu-referencia.html (tempos, easing, atrasos, ordem).
+   * O visual (tamanhos, cores, ícones) segue o código. Não alterar os números sem aprovação.
+   */
+  --ease-menu-open: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-menu-close: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-menu-link-close: ease-in;
+  /* palavras-chave CSS (não confundir com o token --ease-out do tema) */
+  --ease-menu-scrim: ease-out;
+  --ease-menu-icon-fade: ease;
+  --duration-menu-panel-open: 520ms;
+  --duration-menu-panel-close: 320ms;
+  --duration-menu-link-open: 380ms;
+  --duration-menu-link-close: 140ms;
+  --duration-menu-icon-open: 440ms;
+  --duration-menu-icon-close: 340ms;
+  --duration-menu-scrim-open: 300ms;
+  --duration-menu-scrim-close: 240ms;
+  --menu-link-delay: 120ms;
+  --menu-link-stagger: 55ms;
+  --menu-link-offset: 12px;
+  --menu-icon-rotate: 180deg;
+  /*
+   * Ícone do código: lucide Menu (traços em y 5/12/19, espessura 2.4) ↔ lucide X (espessura 2,
+   * de 6,6 a 18,18). Os traços de cima/baixo andam 7 até o centro (y 12) e esticam 16 → 12√2.
+   */
+  --menu-icon-stroke: 2.4;
+  --menu-icon-stroke-open: 2;
+  --menu-icon-line-offset: 7px;
+  --menu-icon-x-scale: 1.06066;
 
   /* Símbolo do logo, em em (base = tamanho do texto do logo, 22px) */
   --logo-bar-w: calc(5em / 22);
@@ -375,6 +443,260 @@
     transition-property: translate;
     transition-duration: var(--duration-control);
     transition-timing-function: var(--ease-out);
+  }
+}
+
+/*
+ * Entrada da escada da hero (desktop). Usar com motion-safe: com reduced motion fica a escada pronta.
+ * --i = índice do degrau, --h = deslocamento inicial (altura do degrau, em unidades do viewBox).
+ * --j = índice do arco, de dentro para fora. fill-mode backwards: estado base = escada pronta.
+ */
+@utility stair-rise {
+  animation: stair-rise var(--duration-stair-rise) var(--ease-stair) backwards;
+  animation-delay: calc(var(--i) * var(--stair-rise-stagger));
+}
+@utility stair-arc-grow {
+  animation: stair-arc-grow var(--duration-stair-arc) var(--ease-stair)
+    backwards;
+  animation-delay: calc(
+    var(--stair-arcs-delay) + var(--j) * var(--stair-arcs-stagger)
+  );
+}
+
+@keyframes stair-rise {
+  from {
+    transform: translateY(var(--h));
+  }
+}
+@keyframes stair-arc-grow {
+  from {
+    transform: scale(0);
+  }
+}
+
+/* Rabisco (desktop): usar com motion-safe; fill backwards = invisível na espera, completo depois. */
+@utility scribble-draw {
+  animation: scribble-draw var(--duration-scribble-draw)
+    var(--ease-scribble-draw) var(--scribble-draw-delay) backwards;
+}
+@keyframes scribble-draw {
+  from {
+    stroke-dasharray: 1 2;
+    stroke-dashoffset: var(--scribble-dash-start);
+  }
+  to {
+    stroke-dasharray: 1 2;
+    stroke-dashoffset: 0;
+  }
+}
+
+/*
+ * Trilha de "Como um projeto anda" (só desktop + motion-safe; no mobile e com reduced motion fica pronta).
+ * O <ol> da trilha recebe data-track-state: "idle" (estado inicial, antes do disparo) → "play".
+ * --track-f = fração da borda esquerda do elemento ao longo da linha (medida no disparo).
+ */
+@utility track-line-motion {
+  transform-origin: left center;
+  @variant lg {
+    @variant motion-safe {
+      [data-track-state='idle'] & {
+        transform: scaleX(0);
+      }
+      [data-track-state='play'] & {
+        animation: track-line-grow var(--duration-track-line)
+          var(--ease-track-line) backwards;
+        animation-delay: var(--track-start-delay);
+      }
+    }
+  }
+}
+@utility track-circle-motion {
+  --track-from-opacity: var(--track-circle-from-opacity);
+  --track-from-scale: var(--track-circle-from-scale);
+  @variant lg {
+    @variant motion-safe {
+      [data-track-state='idle'] & {
+        opacity: var(--track-from-opacity);
+        transform: scale(var(--track-from-scale));
+      }
+      [data-track-state='play'] & {
+        animation: track-node-pop var(--duration-track-pop)
+          var(--ease-track-pop) backwards;
+        animation-delay: calc(
+          var(--track-start-delay) + var(--track-f, 0) *
+            var(--duration-track-line)
+        );
+      }
+    }
+  }
+}
+@utility track-seal-motion {
+  --track-from-opacity: var(--track-seal-from-opacity);
+  --track-from-scale: var(--track-seal-from-scale);
+  @variant lg {
+    @variant motion-safe {
+      [data-track-state='idle'] & {
+        opacity: var(--track-from-opacity);
+        transform: scale(var(--track-from-scale));
+      }
+      [data-track-state='play'] & {
+        animation: track-node-pop var(--duration-track-pop)
+          var(--ease-track-pop) backwards;
+        animation-delay: calc(
+          var(--track-start-delay) + var(--track-f, 0) *
+            var(--duration-track-line)
+        );
+      }
+    }
+  }
+}
+
+/*
+ * Menu mobile: o <header> recebe data-menu-open. Transições (interrompíveis) declaradas nos dois
+ * estados, como na referência; a do estado de destino é a que vale. Só com motion-safe: com
+ * reduced motion os estados trocam sem animação (a regra global não zera os atrasos).
+ */
+@utility menu-panel {
+  @variant max-lg {
+    @variant motion-safe {
+      transition: border-radius var(--duration-menu-panel-close)
+        var(--ease-menu-close);
+      [data-menu-open='true'] & {
+        transition: border-radius var(--duration-menu-panel-open)
+          var(--ease-menu-open);
+      }
+    }
+  }
+}
+/* bloco dos links: cresce de 0fr a 1fr (altura do conteúdo, sem medir) e sai do alcance ao fechar */
+@utility menu-links {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  [data-menu-open='true'] & {
+    grid-template-rows: 1fr;
+    visibility: visible;
+  }
+  @variant motion-safe {
+    transition:
+      grid-template-rows var(--duration-menu-panel-close) var(--ease-menu-close),
+      visibility 0s linear var(--duration-menu-panel-close);
+    [data-menu-open='true'] & {
+      transition:
+        grid-template-rows var(--duration-menu-panel-open) var(--ease-menu-open),
+        visibility 0s linear 0s;
+    }
+  }
+}
+/* --i = índice do link */
+@utility menu-link {
+  opacity: 0;
+  transform: translateY(var(--menu-link-offset));
+  [data-menu-open='true'] & {
+    opacity: 1;
+    transform: none;
+  }
+  @variant motion-safe {
+    transition:
+      opacity var(--duration-menu-link-close) var(--ease-menu-link-close),
+      transform var(--duration-menu-link-close) var(--ease-menu-link-close);
+    [data-menu-open='true'] & {
+      transition:
+        opacity var(--duration-menu-link-open) var(--ease-menu-open),
+        transform var(--duration-menu-link-open) var(--ease-menu-open);
+      transition-delay: calc(
+        var(--menu-link-delay) + var(--i) * var(--menu-link-stagger)
+      );
+    }
+  }
+}
+@utility menu-icon {
+  [data-menu-open='true'] & {
+    transform: rotate(var(--menu-icon-rotate));
+  }
+  @variant motion-safe {
+    transition: transform var(--duration-menu-icon-close) var(--ease-menu-close);
+    [data-menu-open='true'] & {
+      transition: transform var(--duration-menu-icon-open) var(--ease-menu-open);
+    }
+  }
+}
+@utility menu-icon-line {
+  stroke-width: var(--menu-icon-stroke);
+  transform-box: fill-box;
+  transform-origin: center;
+  [data-menu-open='true'] & {
+    stroke-width: var(--menu-icon-stroke-open);
+  }
+  @variant motion-safe {
+    transition:
+      transform var(--duration-menu-icon-close) var(--ease-menu-close),
+      stroke-width var(--duration-menu-icon-close) var(--ease-menu-close),
+      opacity var(--duration-menu-icon-close) var(--ease-menu-icon-fade);
+    [data-menu-open='true'] & {
+      transition:
+        transform var(--duration-menu-icon-open) var(--ease-menu-open),
+        stroke-width var(--duration-menu-icon-open) var(--ease-menu-open),
+        opacity var(--duration-menu-icon-open) var(--ease-menu-icon-fade);
+    }
+  }
+}
+@utility menu-icon-top {
+  [data-menu-open='true'] & {
+    transform: translateY(var(--menu-icon-line-offset)) rotate(45deg)
+      scaleX(var(--menu-icon-x-scale));
+  }
+}
+@utility menu-icon-middle {
+  [data-menu-open='true'] & {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+}
+@utility menu-icon-bottom {
+  [data-menu-open='true'] & {
+    transform: translateY(calc(var(--menu-icon-line-offset) * -1))
+      rotate(-45deg) scaleX(var(--menu-icon-x-scale));
+  }
+}
+/* fundo do botão aberto: camada própria, para não mexer na transição do hover do IconButton.
+   Na referência a curva é a de fechar nos dois sentidos (ao abrir só muda a duração). */
+@utility menu-toggle-fill {
+  opacity: 0;
+  [data-menu-open='true'] & {
+    opacity: 1;
+  }
+  @variant motion-safe {
+    transition: opacity var(--duration-menu-icon-close) var(--ease-menu-close);
+    [data-menu-open='true'] & {
+      transition-duration: var(--duration-menu-icon-open);
+    }
+  }
+}
+@utility menu-scrim {
+  opacity: 0;
+  pointer-events: none;
+  [data-menu-open='true'] & {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  @variant motion-safe {
+    transition: opacity var(--duration-menu-scrim-close) var(--ease-menu-scrim);
+    [data-menu-open='true'] & {
+      transition-duration: var(--duration-menu-scrim-open);
+    }
+  }
+}
+
+@keyframes track-line-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes track-node-pop {
+  from {
+    opacity: var(--track-from-opacity);
+    transform: scale(var(--track-from-scale));
   }
 }
 

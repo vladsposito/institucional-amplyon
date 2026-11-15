@@ -34,11 +34,14 @@ export function Scribble({ children }: { children: ReactNode }) {
         preserveAspectRatio="none"
         fill="none"
       >
+        {/* Motion 4 (docs/motion/rabisco-referencia.html): desenhado como caneta no relógio da escada. */}
         <path
           d="M3.16 8.75C40.0267 2.625 77.9467 12.25 117.973 6.125C158 4.76837e-07 200.133 1.75 240.16 7.875C280.187 14 290.72 10.5 312.84 4.375"
+          pathLength={1}
           stroke="currentColor"
           strokeWidth="5"
           strokeLinecap="round"
+          className="motion-safe:scribble-draw"
         />
       </svg>
     </span>

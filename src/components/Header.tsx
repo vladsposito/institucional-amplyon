@@ -1,11 +1,13 @@
 import { useEffect, useRef } from 'react'
+import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent } from 'react'
 import { flushSync } from 'react-dom'
-import { Menu } from 'lucide-react'
 import { Button } from '@/components/Button'
 import { Container } from '@/components/Container'
 import { IconButton } from '@/components/IconButton'
 import { Logo } from '@/components/Logo'
+import { MenuToggleIcon } from '@/components/MenuToggleIcon'
 import { MobileMenu } from '@/components/MobileMenu'
+import { cn } from '@/lib/cn'
 import { NAV_ITEMS, SECTION_IDS } from '@/lib/nav'
 
 type HeaderProps = {
@@ -14,10 +16,16 @@ type HeaderProps = {
 }
 
 const DESKTOP_QUERY = '(min-width: 64rem)'
+const FOCUSABLE = 'a[href], button:not([disabled])'
 
-/** Pílula flutuante. Fixa no topo; o espaçador no fluxo fica no App. */
+/**
+ * Pílula flutuante. Fixa no topo; o espaçador no fluxo fica no App.
+ * No mobile, a pílula e o menu são um painel único que cresce para baixo ao abrir
+ * (motion 3, docs/motion/menu-referencia.html): a barra não se mexe e os links entram abaixo dela.
+ */
 export function Header({ menuOpen, onMenuOpenChange }: HeaderProps) {
   const menuButtonRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
 
   // Ao chegar no desktop, o painel mobile não faz mais sentido.
   useEffect(() => {
@@ -46,66 +54,131 @@ export function Header({ menuOpen, onMenuOpenChange }: HeaderProps) {
     history.replaceState(null, '', `#${id}`)
   }
 
+  // Menu aberto: Esc fecha e o Tab circula entre os itens visíveis do painel.
+  const handleKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (!menuOpen) return
+    if (event.key === 'Escape') {
+      event.stopPropagation()
+      closeAndRestoreFocus()
+      return
+    }
+    if (event.key !== 'Tab' || !panelRef.current) return
+    const items = Array.from(
+      panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE),
+    ).filter((el) => el.getClientRects().length > 0 && !el.closest('[inert]'))
+    const first = items[0]
+    const last = items[items.length - 1]
+    if (!first || !last) return
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault()
+      last.focus()
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault()
+      first.focus()
+    }
+  }
+
+  const handleQuote = (event: MouseEvent<HTMLElement>) => {
+    // Com o menu aberto, "Orçamento" fecha e navega (como no painel do menu); fechado, é link comum.
+    if (!menuOpen) return
+    event.preventDefault()
+    navigateTo(SECTION_IDS.contact)
+  }
+
   return (
-    <header className="fixed inset-x-0 top-3 z-50 lg:top-6">
+    <header
+      data-menu-open={menuOpen}
+      className="fixed inset-x-0 top-3 z-50 lg:top-6"
+    >
+      {/* Fundo escurecido (mobile): fora do painel, para o vidro continuar desfocando-o por trás. */}
+      <div
+        aria-hidden="true"
+        onClick={closeAndRestoreFocus}
+        className="menu-scrim fixed inset-0 bg-ground/(--opacity-scrim) lg:hidden"
+      />
       <Container>
         <div
-          inert={menuOpen}
-          className="flex items-center justify-between rounded-pill border border-line glass py-1.5 pr-1.5 pl-4 lg:py-2 lg:pr-2 lg:pl-5"
+          ref={panelRef}
+          role={menuOpen ? 'dialog' : undefined}
+          aria-modal={menuOpen || undefined}
+          aria-label={menuOpen ? 'Menu' : undefined}
+          onKeyDown={handleKeyDown}
+          className="relative rounded-panel border border-line glass menu-panel max-lg:overflow-hidden lg:rounded-pill"
         >
-          <a href="#topo" aria-label="Amplyon, início">
-            <span className="lg:hidden">
-              <Logo size="sm" />
-            </span>
-            <span className="hidden lg:block">
-              <Logo />
-            </span>
-          </a>
+          <div className="flex items-center justify-between py-1.5 pr-1.5 pl-4 lg:py-2 lg:pr-2 lg:pl-5">
+            {/* aberto, o logo não é clicável (como era na barra do painel do menu) */}
+            <a href="#topo" aria-label="Amplyon, início" inert={menuOpen}>
+              <span className="lg:hidden">
+                <Logo size="sm" />
+              </span>
+              <span className="hidden lg:block">
+                <Logo />
+              </span>
+            </a>
 
-          <nav aria-label="Principal" className="hidden lg:block">
-            <ul className="flex gap-8">
-              {NAV_ITEMS.map((item) => (
-                <li key={item.id}>
-                  <a
-                    href={`#${item.id}`}
-                    className="type-body text-ink-muted interactive hover:text-ink"
-                  >
-                    {item.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
+            <nav aria-label="Principal" className="hidden lg:block">
+              <ul className="flex gap-8">
+                {NAV_ITEMS.map((item) => (
+                  <li key={item.id}>
+                    <a
+                      href={`#${item.id}`}
+                      className="type-body text-ink-muted interactive hover:text-ink"
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
 
-          <div className="flex items-center gap-1.5">
-            <span className="hidden xs:block lg:hidden">
-              <Button href={`#${SECTION_IDS.contact}`} size="sm">
-                Orçamento
-              </Button>
-            </span>
-            <span className="hidden lg:block">
-              <Button href={`#${SECTION_IDS.contact}`}>
-                Quero um orçamento
-              </Button>
-            </span>
-            <IconButton
-              ref={menuButtonRef}
-              label="Abrir menu"
-              expanded={menuOpen}
-              controls="mobile-menu"
-              onClick={() => onMenuOpenChange(true)}
-              icon={<Menu size={20} strokeWidth={2.4} aria-hidden="true" />}
-              className="lg:hidden"
-            />
+            <div className="flex items-center gap-1.5">
+              {/* abaixo de 360 px o "Orçamento" só aparece com o menu aberto */}
+              <span
+                className={cn('hidden xs:block lg:hidden', menuOpen && 'block')}
+              >
+                <Button
+                  href={`#${SECTION_IDS.contact}`}
+                  size="sm"
+                  onClick={handleQuote}
+                >
+                  Orçamento
+                </Button>
+              </span>
+              <span className="hidden lg:block">
+                <Button href={`#${SECTION_IDS.contact}`}>
+                  Quero um orçamento
+                </Button>
+              </span>
+              <IconButton
+                ref={menuButtonRef}
+                label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
+                expanded={menuOpen}
+                controls="mobile-menu"
+                onClick={() =>
+                  menuOpen ? closeAndRestoreFocus() : onMenuOpenChange(true)
+                }
+                icon={
+                  <>
+                    {/* fundo do estado aberto; some no hover para manter o hover do IconButton */}
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-0 rounded-pill bg-amp-soft menu-toggle-fill group-hover:opacity-0 group-hover:duration-(--duration-control) group-hover:ease-out"
+                    />
+                    <MenuToggleIcon />
+                  </>
+                }
+                className="group lg:hidden"
+              />
+            </div>
           </div>
+
+          <MobileMenu
+            open={menuOpen}
+            onClose={closeAndRestoreFocus}
+            onNavigate={navigateTo}
+          />
         </div>
       </Container>
-
-      <MobileMenu
-        open={menuOpen}
-        onClose={closeAndRestoreFocus}
-        onNavigate={navigateTo}
-      />
     </header>
   )
 }

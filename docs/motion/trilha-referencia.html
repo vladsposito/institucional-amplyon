@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Referência: motion 2, linha da trilha (opção A)</title>
+<!--
+  REFERÊNCIA OFICIAL DO MOTION 2 (opção A, "Contínua"), versão desktop.
+  Esta página é a fonte de verdade da animação. A implementação no site deve ser idêntica em
+  geometria relativa, tempos, easing e ordem. Não altere os números sem aprovação do Vlad.
+
+  GEOMETRIA (frame "Trilha + etapas" 19:48 do Figma, 1160 x 56 na trilha)
+  - Linha: y 27, altura 2, cor line-strong #5F8A84, raio 1. Começa em x 0 e termina em x 1011,
+    que é onde começa o selo "Repete todo mês". A linha NÃO passa por baixo desse selo.
+  - Círculos 56x56 em x 0, 296, 592 e 888 (borda 2 sage, fundo ground; o 4º tem fundo mint).
+  - Selos "seu ok" 72x28 em x 140, 436 e 732. Selo "Repete todo mês" 149x31 em x 1011 (só borda sage).
+
+  ANIMAÇÃO
+  - Dispara uma vez, quando a trilha entra na tela (aqui: 60% visível). A linha começa 200 ms depois.
+  - Linha: cresce da esquerda para a direita (scaleX de 0 a 1, origem à esquerda), em 2100 ms,
+    easing linear. O ritmo é constante: 2100 ms para 1011 px.
+  - Etapas e selos "acendem" no instante em que a linha encosta neles (borda esquerda do elemento):
+    círculos vão de opacity .25 e scale .92 até 1 e 1; selos vão de opacity 0 e scale .8 até 1 e 1.
+    Duração 320 ms, easing cubic-bezier(.34,1.56,.64,1), com o estado inicial aplicado durante o atraso.
+  - Posição de cada elemento na linha (fração de 1011) e atraso = 200 ms + fração x 2100 ms:
+      círculo 1    x   0  fração 0,0000  atraso  200 ms
+      selo 1       x 140  fração 0,1385  atraso  491 ms
+      círculo 2    x 296  fração 0,2928  atraso  815 ms
+      selo 2       x 436  fração 0,4312  atraso 1106 ms
+      círculo 3    x 592  fração 0,5855  atraso 1430 ms
+      selo 3       x 732  fração 0,7240  atraso 1720 ms
+      círculo 4    x 888  fração 0,8783  atraso 2045 ms
+      selo repete  x1011  fração 1,0000  atraso 2300 ms
+    O último elemento termina em 2620 ms.
+  - Os textos das etapas (títulos e descrições) NÃO animam: ficam parados.
+  - Estado base (sem animação) = trilha pronta e completa. Com prefers-reduced-motion: reduce,
+    aparece pronta, sem animação.
+-->
+<style>
+  :root {
+    --ground: #0A2422; --surface: #12302D; --line-strong: #5F8A84; --ink: #E4FBF8;
+    --amp: #FFC94A; --on-amp: #0A2422; --sage: #7FBFB6; --mint: #D4FBF6;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--surface); color: var(--ink); font: 400 16px/24px system-ui, sans-serif;
+         min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 32px; padding: 24px; }
+  #mock { position: relative; margin-inline: auto; width: 1160px; height: 130px; flex: none; }
+  .line { position: absolute; left: 0; top: 27px; width: 1011px; height: 2px; border-radius: 1px; background: var(--line-strong); transform-origin: left center; }
+  .node { position: absolute; }
+  .circle { top: 0; width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--sage); background: var(--ground);
+            display: grid; place-items: center; font: 400 26px/1 system-ui, sans-serif; color: var(--ink); }
+  .circle.last { background: var(--mint); color: var(--on-amp); }
+  .pill { top: 14px; width: 72px; height: 28px; border-radius: 999px; background: var(--amp); color: var(--on-amp);
+          font: 500 12px/28px ui-monospace, Menlo, monospace; letter-spacing: .1em; text-align: center; text-transform: uppercase; }
+  .pill.out { top: 12.5px; width: 149px; height: 31px; background: transparent; border: 1px solid var(--sage); color: var(--sage); line-height: 29px; }
+  .title { position: absolute; top: 88px; width: 272px; font: 700 24px/34px system-ui, sans-serif; letter-spacing: -.01em; }
+  button { align-self: center; height: 48px; padding: 0 24px; border-radius: 999px; border: 0; background: var(--amp); color: var(--on-amp);
+           font: 700 16px/1 system-ui, sans-serif; cursor: pointer; }
+  button:focus-visible { outline: 2px solid var(--amp); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div id="mock">
+  <div class="line"></div>
+  <div class="node circle" data-x="0" style="left:0">1</div>
+  <div class="node pill" data-x="140" style="left:140px">seu ok</div>
+  <div class="node circle" data-x="296" style="left:296px">2</div>
+  <div class="node pill" data-x="436" style="left:436px">seu ok</div>
+  <div class="node circle" data-x="592" style="left:592px">3</div>
+  <div class="node pill" data-x="732" style="left:732px">seu ok</div>
+  <div class="node circle last" data-x="888" style="left:888px">4</div>
+  <div class="node pill out" data-x="1011" style="left:1011px">Repete todo mês</div>
+  <div class="title" style="left:0">A gente conversa</div>
+  <div class="title" style="left:296px">A gente constrói</div>
+  <div class="title" style="left:592px">Vai pro ar</div>
+  <div class="title" style="left:888px">A gente não some</div>
+</div>
+<button id="replay" type="button">Reproduzir de novo</button>
+<script>
+  var L = 1011, DURATION = 2100, START = 200, POP = 320;
+  var EASE_POP = 'cubic-bezier(.34,1.56,.64,1)';
+  var RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var mock = document.getElementById('mock');
+  var anims = [];
+
+  function play() {
+    anims.forEach(function (a) { a.cancel(); });
+    anims = [];
+    if (RM) return;
+    var line = mock.querySelector('.line');
+    anims.push(line.animate(
+      [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
+      { duration: DURATION, delay: START, easing: 'linear', fill: 'backwards' }
+    ));
+    mock.querySelectorAll('.node').forEach(function (n) {
+      var x = parseFloat(n.getAttribute('data-x'));
+      var pill = n.classList.contains('pill');
+      var from = pill ? { opacity: 0, transform: 'scale(.8)' } : { opacity: .25, transform: 'scale(.92)' };
+      anims.push(n.animate(
+        [from, { opacity: 1, transform: 'scale(1)' }],
+        { duration: POP, delay: START + (x / L) * DURATION, easing: EASE_POP, fill: 'backwards' }
+      ));
+    });
+  }
+
+  document.getElementById('replay').addEventListener('click', play);
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { play(); io.disconnect(); } });
+    }, { threshold: 0.6 });
+    io.observe(mock);
+  } else { play(); }
+</script>
+</body>
+</html>
