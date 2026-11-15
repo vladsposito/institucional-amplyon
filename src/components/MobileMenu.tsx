@@ -21,7 +21,11 @@ export function MobileMenu({ open, onClose, onNavigate }: MobileMenuProps) {
     if (!open) return
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    navRef.current?.querySelector<HTMLElement>('a')?.focus()
+    // preventScroll: o bloco ainda está crescendo (0fr); sem isso o navegador rolaria o bloco
+    // por dentro para mostrar o link e a lista entraria deslocada para cima.
+    navRef.current
+      ?.querySelector<HTMLElement>('a')
+      ?.focus({ preventScroll: true })
     return () => {
       document.body.style.overflow = previousOverflow
     }
