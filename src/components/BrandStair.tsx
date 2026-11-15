@@ -45,6 +45,7 @@ const motionVars = (vars: Record<string, string | number>) =>
  * A largura da escada vem da altura disponível na primeira tela (--stair-w / --stair-w-m):
  * em telas baixas ela encolhe por igual (presa à direita no desktop, centralizada no mobile).
  * Desktop: SVG com motion de entrada (opção A, "Subida firme"); estado base = escada pronta.
+ * Mobile: mesmos utilitários e tempos (docs/motion/hero-mobile-referencia.html) nos divs.
  */
 export function BrandStair({ variant, className }: BrandStairProps) {
   const clipId = useId()
@@ -106,15 +107,20 @@ export function BrandStair({ variant, className }: BrandStairProps) {
 
   return (
     <div aria-hidden="true" className={className}>
-      <div className="mx-auto flex w-(--stair-w-m) items-end gap-(--stair-gap-mobile)">
-        {MOBILE_BARS.map((bar) => (
+      {/* Recorta os degraus enquanto sobem; @container dá o cqw da sobra (--stair-bleed-mobile). */}
+      <div className="@container mx-auto flex w-(--stair-w-m) items-end gap-(--stair-gap-mobile) overflow-hidden">
+        {MOBILE_BARS.map((bar, i) => (
           <div
             key={bar.color}
             className={cn(
-              'relative min-w-0 flex-1 overflow-hidden rounded-t-bar-mobile',
+              'relative min-w-0 flex-1 overflow-hidden rounded-t-bar-mobile motion-safe:stair-rise',
               bar.color,
               bar.ratio,
             )}
+            style={motionVars({
+              '--i': i,
+              '--h': 'calc(100% + var(--stair-bleed-mobile))',
+            })}
           >
             {bar.color === 'bg-mint' && <StairArcs />}
           </div>
