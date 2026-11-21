@@ -22,10 +22,12 @@ const unscaledTop = (el: Element) => {
  * Motion da trilha. Dispara uma vez e grava as frações medidas; os tempos ficam nos tokens do CSS.
  * Desktop (docs/motion/trilha-referencia.html): quando a faixa fica --track-trigger-ratio visível,
  * mede para cada [data-track-anchor] a fração da borda esquerda ao longo da linha (--track-f).
+ * A linha vai da borda esquerda da faixa ao centro da última pílula.
  * Mobile (docs/motion/trilha-mobile-referencia.html): quando o topo da lista passa da margem
- * --track-trigger-margin-mobile, mede de cima para baixo. A linha vai do centro do 1º ao centro do
- * último círculo; cada [data-track-anchor-mobile] recebe a fração da borda de cima do primeiro filho
- * e cada segmento (::before de [data-track-segment]) a fração do início e do comprimento.
+ * --track-trigger-margin-mobile, mede de cima para baixo. A linha vai do centro do 1º círculo ao
+ * centro da última pílula ([data-track-end-mobile]); cada [data-track-anchor-mobile] recebe a fração
+ * da borda de cima do primeiro filho e cada segmento (::before de [data-track-segment]) a fração do
+ * início e do comprimento.
  * A faixa do desktop tem display none no mobile: é ela que diz qual layout está ativo.
  * Com reduced motion não observa (o CSS mostra a trilha pronta).
  */
@@ -56,13 +58,10 @@ export function useTrackMotion() {
     const isDesktopLayout = () => getComputedStyle(band).display !== 'none'
 
     const measureDesktop = () => {
-      // A linha termina, por construção, onde começa o selo-espaçador ao lado dela. Medir por ele
-      // dá o comprimento exato (sem arredondar) e não é afetado pelo scaleX(0) do estado inicial.
+      // A linha começa na borda esquerda da faixa e termina, por construção, no centro da última
+      // pílula. A largura computada é exata (sem arredondar) e não muda com o scaleX(0) inicial.
       const start = band.getBoundingClientRect().left
-      const end =
-        line.nextElementSibling?.getBoundingClientRect().left ??
-        start + line.offsetWidth
-      const length = end - start
+      const length = parseFloat(getComputedStyle(line).width)
       list
         .querySelectorAll<HTMLElement>('[data-track-anchor]')
         .forEach((anchor) => {
@@ -75,12 +74,12 @@ export function useTrackMotion() {
       const segments = list.querySelectorAll<HTMLElement>(
         '[data-track-segment]',
       )
-      const circles = list.querySelectorAll(
-        '[data-track-anchor-mobile="circle"] > :first-child',
-      )
       const firstSegment = segments[0]
-      const lastCircle = circles[circles.length - 1]
-      if (!firstSegment || !lastCircle) return
+      // fim da linha: centro da última pílula (o scale do estado inicial é a partir do centro)
+      const endPill = list.querySelector(
+        '[data-track-end-mobile] > :first-child',
+      )
+      if (!firstSegment || !endPill) return
       const segmentGeometry = (segment: HTMLElement) => {
         const style = getComputedStyle(segment, '::before')
         return {
@@ -89,8 +88,8 @@ export function useTrackMotion() {
         }
       }
       const lineTop = segmentGeometry(firstSegment).top
-      const lastRect = lastCircle.getBoundingClientRect()
-      const length = (lastRect.top + lastRect.bottom) / 2 - lineTop
+      const endRect = endPill.getBoundingClientRect()
+      const length = (endRect.top + endRect.bottom) / 2 - lineTop
       segments.forEach((segment) => {
         const { top, height } = segmentGeometry(segment)
         segment.style.setProperty(

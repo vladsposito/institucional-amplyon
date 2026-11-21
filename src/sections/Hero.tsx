@@ -12,24 +12,32 @@ export function Hero() {
     >
       {/* Padding superior e gaps diminuem em telas baixas (tokens --hero-* em index.css). */}
       <Container className="flex flex-col items-center gap-(--hero-gap-m) pt-(--hero-pt-m) pb-10 text-center lg:items-start lg:gap-7 lg:pt-(--hero-pt) lg:pb-0 lg:text-left">
-        {/* Um único h1; os espaços entre as linhas mantêm a leitura contínua. */}
+        {/*
+          Um único h1; as quebras mudam por breakpoint (Figma 71:52 desktop, 71:254 mobile).
+          Desktop: "Seu concorrente vende / mais que você. / E ele nem é melhor."
+          Mobile: "Seu concorrente / vende mais que / você. E ele / nem é melhor."
+          Há um espaço antes de cada <br> para a leitura contínua. "E ele" + rabisco: no mobile
+          `contents` (fica no fluxo); no desktop `inline-flex`, que descarta o espaço e usa o gap de 18.
+        */}
         <h1
           id="hero-title"
           className="type-display-xl-mobile whitespace-nowrap text-ink lg:type-display-xl"
         >
-          <span className="block lg:inline">A gente faz</span>{' '}
-          <span className="block lg:inline">o site.</span>{' '}
-          <span className="flex justify-center gap-(--gap-title-line3-mobile) lg:justify-start lg:gap-(--gap-title-line3-desktop)">
-            <span>E</span> <Scribble>traz gente</Scribble>
-          </span>{' '}
-          <span className="block">pra ele.</span>
+          Seu concorrente <br className="lg:hidden" />
+          vende <br className="hidden lg:inline" />
+          mais que <br className="lg:hidden" />
+          você. <br className="hidden lg:inline" />
+          <span className="contents lg:inline-flex lg:gap-(--gap-title-line3-desktop)">
+            E ele <br className="lg:hidden" />
+            <Scribble>nem é melhor.</Scribble>
+          </span>
         </h1>
 
         {/* Mobile: descrição menor (16/24) para sobrar altura para a escada na primeira tela. */}
         <p className="max-w-130 type-body-lg-mobile text-ink-muted lg:type-body-lg">
-          Site, landing page ou sistema de um lado. Anúncio no Google e na Meta
-          do outro. Aqui os dois lados são feitos pelo mesmo time, do primeiro
-          clique até a venda.
+          Anúncio que gera demanda, sistema que organiza sua empresa e IA que
+          atende seu cliente na hora. Venda mais, venda mais rápido e aumente
+          seu faturamento.
         </p>
 
         {/* Mobile: escada entre o texto e os botões, de ponta a ponta da tela. */}
@@ -44,7 +52,7 @@ export function Hero() {
             fullWidth
             className="lg:w-auto"
           >
-            Quero um orçamento
+            Quero uma consultoria
           </Button>
           <Button
             href={`#${SECTION_IDS.services}`}

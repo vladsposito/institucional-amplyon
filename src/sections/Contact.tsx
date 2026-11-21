@@ -1,11 +1,9 @@
+import { Button } from '@/components/Button'
 import { ChatBubble } from '@/components/ChatBubble'
 import { Container } from '@/components/Container'
 import { CHAT, CONTACT_COPY } from '@/lib/content'
-import { CONTACT, CONTACT_PLACEHOLDERS } from '@/lib/contact'
+import { WHATSAPP_URL } from '@/lib/contact'
 import { SECTION_IDS } from '@/lib/nav'
-
-const FIELD =
-  'rounded-sm border border-dashed border-line-strong bg-ground px-3.5 py-2.5 type-body text-ink-muted'
 
 /** Contato no formato de conversa (chat de exemplo). */
 export function Contact() {
@@ -28,22 +26,15 @@ export function Contact() {
             <p className="type-body-lg text-ink lg:max-w-110">
               {CONTACT_COPY.description}
             </p>
-            <ul className="flex flex-col gap-2 lg:items-start">
-              <li className={FIELD}>
-                {CONTACT.whatsapp ? (
-                  <a href={CONTACT.whatsapp}>{CONTACT.whatsapp}</a>
-                ) : (
-                  CONTACT_PLACEHOLDERS.whatsapp
-                )}
-              </li>
-              <li className={FIELD}>
-                {CONTACT.email ? (
-                  <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
-                ) : (
-                  CONTACT_PLACEHOLDERS.email
-                )}
-              </li>
-            </ul>
+            {/* Mobile: largura total; desktop: largura do rótulo (Figma 81:84 / 81:80). */}
+            <Button
+              href={WHATSAPP_URL}
+              external
+              fullWidth
+              className="lg:w-auto lg:self-start"
+            >
+              {CONTACT_COPY.cta}
+            </Button>
           </div>
 
           <div className="lg:w-105 lg:shrink-0">
