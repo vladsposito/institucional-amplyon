@@ -19,6 +19,7 @@ React + Vite + TypeScript (strict) · Tailwind CSS v4 (`@tailwindcss/vite`, sem 
 - `src/sections/` — seções da página
 - `src/assets/` — imagens e arquivos estáticos
 - `public/favicon/` — favicons (SVG principal, ICO/PNG de fallback, apple-touch-icon) e `site.webmanifest` (ícones 192/512), todos ligados no `index.html`
+- `public/clientes/` — logos circulares dos clientes (PNGs originais; não exportar do Figma). Referenciar com `import.meta.env.BASE_URL` (o `base` do Vite é `/institucional-amplyon/`)
 - `src/lib/` — utilitários
 - Alias: `@/` aponta para `src/`
 - `.mcp.json` — MCP do Figma (autenticar com `/mcp`)
@@ -30,6 +31,7 @@ React + Vite + TypeScript (strict) · Tailwind CSS v4 (`@tailwindcss/vite`, sem 
 - Nunca trocar uma fonte do design sem aprovação.
 - Componentes funcionais com TypeScript, sem `any`.
 - Hero: h1 e escada precisam caber na primeira tela, na área útil real do navegador (`svh`). Em telas baixas, primeiro diminui o padding entre o header e o h1, depois a escada encolhe por igual (presa à direita no desktop, centralizada no mobile, nunca achatada). No mobile a descrição usa `type-body-lg-mobile` (16/24) para sobrar altura para a escada. Tokens `--hero-*` e `--stair-*` em `index.css`; em telas altas o hero fica igual ao Figma.
+- Resultados (`Results.tsx`, Figma 107:82 / 107:117, entre Hero e Serviços): faixa de logos de ponta a ponta. No desktop ela nunca rola: gap e fade são fluidos sobre `100cqw` (`--logo-gap-desktop`, `--logo-fade-w-desktop`; a moldura é `@container`), então o fade nunca cobre logo e em 1440 fica igual ao Figma. No mobile rola com o dedo, sem barra (`scrollbar-none`), com padding = largura do fade (a 1ª logo começa inteira, aprovado no lugar do x −29 do Figma) e `tabIndex` só quando rola (`useIsScrollable`). Números em `type-stat` (40/44); em `lg` o tamanho é `--stat-size-desktop` (encolhe abaixo de ~1143 para "+R$ 1.650.000" caber na coluna).
 - Escada da hero: no desktop é um SVG (`viewBox 1162 x 320`, `BrandStair.tsx`); no mobile ainda são `div`s com `aspect-ratio`.
 
 ## Motion
