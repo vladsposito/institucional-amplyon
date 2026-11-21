@@ -57,7 +57,7 @@
   /* área de atuação dos sócios: DM Mono 12 com 1.2px (type-label usa 0.08em) */
   --tracking-role: 0.1em;
 
-  /* telas muito estreitas: abaixo disso o botão "Orçamento" sai da barra (continua no menu) */
+  /* telas muito estreitas: abaixo disso o botão "Consultoria" sai da barra (continua no menu) */
   --breakpoint-xs: 22.5rem;
 
   --blur-*: initial;
@@ -72,8 +72,9 @@
   --text-display-xl: 4.5rem;
   --text-display-xl--line-height: 4.5rem;
   --text-display-xl--letter-spacing: -0.03em;
-  --text-display-xl-mobile: 4.25rem;
-  --text-display-xl-mobile--line-height: calc(67 / 68);
+  /* h1 mobile do hero (Figma 71:253): 42/44, 4 linhas */
+  --text-display-xl-mobile: 2.625rem;
+  --text-display-xl-mobile--line-height: calc(44 / 42);
   --text-display-xl-mobile--letter-spacing: -0.03em;
   --text-display: 3rem;
   --text-display--line-height: 3.25rem;
@@ -154,19 +155,22 @@
   --compare-col: 460px;
   --bubble-max-desktop: 356px;
   --bubble-max-mobile: 272px;
-  --border-badge: 1.5px;
   --opacity-glass: 78%;
   /* sem backdrop-filter: cor sólida mais opaca para manter a leitura */
   --opacity-glass-fallback: 95%;
   --opacity-scrim: 60%;
   --gap-title-line3-desktop: 18px;
-  --gap-title-line3-mobile: 16px;
+  --seal-mid-offset: 36px;
   --scribble-overlap-desktop: 6px;
   --scribble-overlap-mobile: 4px;
   --scribble-h-desktop: 14px;
   --scribble-h-mobile: 16px;
-  /* largura do título mobile acompanha a tela: 68px em 390 (358 úteis) */
-  --fluid-display-xl-mobile: calc((100vw - 2 * var(--gutter)) * 0.18994);
+  /*
+   * Título mobile: 42px enquanto a maior linha couber; abaixo disso encolhe com a tela.
+   * "Seu concorrente" mede 315.27px a 42px (Chrome) + 4px de folga: 42 / 319.27 = 0.13155
+   * (42px até ~351px de tela).
+   */
+  --fluid-display-xl-mobile: calc((100vw - 2 * var(--gutter)) * 0.13155);
   --fluid-display-xl-mobile-size: min(
     var(--text-display-xl-mobile),
     var(--fluid-display-xl-mobile)
@@ -242,7 +246,7 @@
   --stair-bleed-mobile: calc(10 / 390 * 100cqw);
 
   /*
-   * Motion do rabisco sob "traz gente", desktop (opção B, "Fecha a cena").
+   * Motion do rabisco sob o destaque do h1 ("nem é melhor."), desktop (opção B, "Fecha a cena").
    * Fonte de verdade: docs/motion/rabisco-referencia.html. Não alterar sem aprovação.
    * Traço desenhado como caneta (pathLength 1, dasharray 1 2, dashoffset 1.02 → 0), no MESMO relógio
    * da escada: as duas animações CSS nascem no mesmo commit, então o atraso conta do zero da escada.
@@ -326,6 +330,13 @@
   --container-column: calc(var(--max-w-column) + 2 * var(--gutter));
   /* ponto médio entre o círculo (3.5rem) e o próximo círculo (coluna + gap 1.5rem) do Process */
   --seal-mid: calc((var(--spacing) * 14 + 100% + var(--spacing) * 6) / 2);
+  /* pílulas 1–3 do desktop: borda esquerda em círculo + 140 (Figma 71:111), 36px antes do ponto médio */
+  --seal-left: calc(var(--seal-mid) - var(--seal-mid-offset));
+  /* trilha mobile: a linha termina no centro da última pílula (py-5 do wrapper + metade da pílula sm) */
+  --badge-sm-h: calc(
+    var(--text-label--line-height) + 2 * var(--spacing) * 1.25
+  );
+  --track-end-mobile: calc(var(--spacing) * 5 + var(--badge-sm-h) / 2);
 
   /* Hero desktop: acompanha a altura útil; o padding cai 1:1 até o mínimo, depois a escada encolhe. */
   --hero-h: clamp(
@@ -349,7 +360,7 @@
   --hero-pt-m: var(--hero-pt-mobile-max);
   --hero-gap-m: var(--hero-gap-mobile-max);
   --hero-title-h-m: calc(
-    4 * var(--fluid-display-xl-mobile-size) * 67 / 68 +
+    4 * var(--fluid-display-xl-mobile-size) * 44 / 42 +
       var(--scribble-h-mobile) - var(--scribble-overlap-mobile)
   );
   --hero-copy-h-m: calc(5 * var(--text-body--line-height));

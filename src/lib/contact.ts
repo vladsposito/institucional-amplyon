@@ -1,13 +1,6 @@
 /**
- * Dados de contato reais da Amplyon. Enquanto forem `null`, a seção de contato
- * mostra os campos-guia tracejados do design (sem link).
+ * Link do botão "Chamar no WhatsApp" (Contato). Abre em nova aba.
+ * TODO: trocar pelo número da Amplyon (formato https://wa.me/55DDDNUMERO). Sem o número,
+ * o link abre o WhatsApp sem conversa: não publicar assim.
  */
-export const CONTACT: { whatsapp: string | null; email: string | null } = {
-  whatsapp: null,
-  email: null,
-}
-
-export const CONTACT_PLACEHOLDERS = {
-  whatsapp: 'WhatsApp da Amplyon entra aqui',
-  email: 'E-mail da Amplyon entra aqui',
-} as const
+export const WHATSAPP_URL = 'https://wa.me/'

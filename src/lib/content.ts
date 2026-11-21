@@ -31,100 +31,88 @@ export const SERVICES_CLOSING = {
 }
 
 export const PROCESS_INTRO = {
-  title: 'Como um projeto anda por aqui',
+  title: 'O que muda no seu negócio',
   description:
-    'Quatro etapas. Você sempre sabe em qual está, e a próxima só começa depois do seu ok.',
+    'Quatro coisas que você sente quando anúncio, sistema e atendimento por IA trabalham juntos.',
 }
 
+/** Etapas da trilha; `pill` é a pílula amp depois de cada etapa. */
 export const PROCESS_STEPS: Array<{
   title: string
   description: string
-  receive: string
+  pill: string
 }> = [
   {
-    title: 'A gente conversa',
+    title: 'Sua demanda sobe.',
     description:
-      'Você conta do negócio, do cliente e da meta. Sai com escopo, prazo e preço fechados.',
-    receive: 'Escopo, prazo e preço',
+      'Cliente novo chamando todo dia. Chega de agenda vazia e de esperar indicação.',
+    pill: 'Procura',
   },
   {
-    title: 'A gente constrói',
-    description:
-      'Design e código. Você acompanha por um link de prévia e aprova antes de publicar.',
-    receive: 'Link de prévia para aprovar',
+    title: 'Você vende mais rápido.',
+    description: 'Quem chama é atendido na hora e fecha antes de esfriar.',
+    pill: 'Velocidade',
   },
   {
-    title: 'Vai pro ar',
+    title: 'Seu faturamento cresce.',
     description:
-      'Página publicada, mensuração instalada e as primeiras campanhas rodando.',
-    receive: 'Página no ar e campanhas rodando',
+      'Mês com previsibilidade, sem torcer pra não fechar no vermelho.',
+    pill: 'Lucro',
   },
   {
-    title: 'A gente não some',
-    description:
-      'Todo mês lemos os números, ajustamos página e anúncio e mostramos o que mudou.',
-    receive: 'Relatório todo mês',
+    title: 'Você para de apagar incêndio.',
+    description: 'Cada coisa no lugar, e você com a cabeça livre pra crescer.',
+    pill: 'Tranquilidade',
   },
 ]
 
 export const DIFFERENTIALS_INTRO = {
   title: 'O que muda quando é com a gente',
   description:
-    'Em geral, quem faz o site e quem roda o anúncio são fornecedores diferentes que nunca se falam.',
+    'Três situações do dia a dia de quem vende, antes e depois da Amplyon.',
 }
 
-export const DIFFERENTIALS: Array<{
-  usual: string
-  title: string
-  description: string
-}> = [
+/** `usual`: sem a Amplyon (riscado no mobile); `title`: com a Amplyon. */
+export const DIFFERENTIALS: Array<{ usual: string; title: string }> = [
   {
-    usual: 'O site fica com um fornecedor e o anúncio com outro.',
-    title: 'Site e anúncio no mesmo time.',
-    description:
-      'Quem programa a página fala todo dia com quem roda a campanha. Nada se perde entre fornecedores.',
+    usual: 'Mês bom, mês ruim, conta chegando e você torcendo',
+    title: 'Venda todo mês e previsibilidade pra crescer',
   },
   {
-    usual: 'Você fala com um atendimento que repassa o recado.',
-    title: 'Você fala com quem faz.',
-    description:
-      'Não tem atendimento no meio. Sua mensagem chega direto no desenvolvedor e no gestor de tráfego.',
+    usual: 'Cliente chama, espera horas e compra do concorrente',
+    title: 'Cliente atendido na hora e venda fechada',
   },
   {
-    usual: 'A mensuração entra depois, quando entra.',
-    title: 'Número desde o primeiro dia.',
-    description:
-      'A mensuração entra no projeto junto com o código. Você sabe de onde veio cada contato.',
-  },
-  {
-    usual: 'A página sai de um modelo pronto, igual a muitas outras.',
-    title: 'Código nosso, feito pra você.',
-    description:
-      'A gente escreve sua página do zero, leve e rápida, para aproveitar cada clique que você paga.',
+    usual: 'Você paga pra aparecer e não sabe se voltou',
+    title: 'Você sabe quanto entrou e de onde veio cada cliente',
   },
 ]
 
 export const CONTACT_COPY = {
-  title: 'Conta pra gente o que você quer vender',
+  title: 'Chega de perder venda. Fala com a gente.',
   description:
-    'A primeira conversa é um diagnóstico. Depois dela você recebe uma proposta com escopo, prazo e preço, sem compromisso.',
+    'Se sua empresa já vende tudo o que poderia, pode fechar essa página. Se não, clica e fala com a gente agora.',
+  cta: 'Chamar no WhatsApp',
   caption: 'É assim que começa',
 }
 
 export const CHAT: Array<{ from: 'client' | 'amplyon'; text: string }> = [
   {
     from: 'client',
-    text: 'Oi, tenho uma clínica e preciso de mais agendamentos.',
+    text: 'Oi, minhas vendas caíram e não sei mais o que fazer.',
   },
-  { from: 'amplyon', text: 'Boa. Você já tem site ou a gente começa do zero?' },
-  { from: 'client', text: 'Tenho um, mas ninguém acha.' },
   {
     from: 'amplyon',
-    text: 'Então dá para resolver. Me conta como o cliente chega hoje?',
+    text: 'Entendi. Quando um cliente te chama hoje, ele é atendido na hora?',
+  },
+  { from: 'client', text: 'Não. Às vezes só no outro dia.' },
+  {
+    from: 'amplyon',
+    text: 'Então você já sabe onde está perdendo venda. Dá pra resolver.',
   },
 ]
 
-export const FOOTER_TEXT = '© 2026 Amplyon. Sites, sistemas e tráfego pago.'
+export const FOOTER_TEXT = '© 2026 Amplyon. Venda mais, todo mês.'
 
 export const RESULTS_LOGOS_TITLE = 'Empresas que já atendemos'
 

@@ -6,6 +6,8 @@ type ButtonProps = {
   size?: 'md' | 'sm'
   href?: string
   fullWidth?: boolean
+  /** Link externo: abre em nova aba (com aviso para leitor de tela). Só vale com `href`. */
+  external?: boolean
   onClick?: MouseEventHandler<HTMLElement>
   className?: string
   children: ReactNode
@@ -23,6 +25,7 @@ export function Button({
   size = 'md',
   href,
   fullWidth,
+  external,
   onClick,
   className,
   children,
@@ -41,8 +44,15 @@ export function Button({
 
   if (href) {
     return (
-      <a href={href} className={classes} onClick={onClick}>
+      <a
+        href={href}
+        className={classes}
+        onClick={onClick}
+        target={external ? '_blank' : undefined}
+        rel={external ? 'noopener noreferrer' : undefined}
+      >
         {children}
+        {external && <span className="sr-only"> (abre em nova aba)</span>}
       </a>
     )
   }

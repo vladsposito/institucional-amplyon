@@ -79,7 +79,7 @@ export function Header({ menuOpen, onMenuOpenChange }: HeaderProps) {
   }
 
   const handleQuote = (event: MouseEvent<HTMLElement>) => {
-    // Com o menu aberto, "Orçamento" fecha e navega (como no painel do menu); fechado, é link comum.
+    // Com o menu aberto, "Consultoria" fecha e navega (como no painel do menu); fechado, é link comum.
     if (!menuOpen) return
     event.preventDefault()
     navigateTo(SECTION_IDS.contact)
@@ -132,7 +132,7 @@ export function Header({ menuOpen, onMenuOpenChange }: HeaderProps) {
             </nav>
 
             <div className="flex items-center gap-1.5">
-              {/* abaixo de 360 px o "Orçamento" só aparece com o menu aberto */}
+              {/* abaixo de 360 px o "Consultoria" só aparece com o menu aberto */}
               <span
                 className={cn('hidden xs:block lg:hidden', menuOpen && 'block')}
               >
@@ -141,12 +141,12 @@ export function Header({ menuOpen, onMenuOpenChange }: HeaderProps) {
                   size="sm"
                   onClick={handleQuote}
                 >
-                  Orçamento
+                  Consultoria
                 </Button>
               </span>
               <span className="hidden lg:block">
                 <Button href={`#${SECTION_IDS.contact}`}>
-                  Quero um orçamento
+                  Quero minha consultoria
                 </Button>
               </span>
               <IconButton

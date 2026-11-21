@@ -6,11 +6,14 @@ import { SECTION_IDS } from '@/lib/nav'
 import { cn } from '@/lib/cn'
 import { useTrackMotion } from '@/lib/useTrackMotion'
 
-const REPEAT_LABEL = 'Repete todo mês'
-
-/** "Como um projeto anda": trilha de 4 etapas (horizontal no desktop, vertical no mobile). */
+/**
+ * "O que muda no seu negócio" (link "Resultado" do header): trilha de 4 etapas, cada uma seguida
+ * de uma pílula amp. Horizontal no desktop, vertical no mobile. A linha termina no centro da
+ * última pílula.
+ */
 export function Process() {
   const lastIndex = PROCESS_STEPS.length - 1
+  const lastPill = PROCESS_STEPS[lastIndex]?.pill
   const { listRef, bandRef, lineRef, state } = useTrackMotion()
   return (
     <section
@@ -31,20 +34,21 @@ export function Process() {
           className="relative mt-8 grid lg:mt-14 lg:grid-cols-4 lg:gap-6"
         >
           {/*
-            Faixa do trilho (desktop): a linha ocupa o espaço até uma cópia invisível do selo final,
-            então termina por construção na borda esquerda do selo "Repete todo mês" (preso à direita).
+            Faixa do trilho (desktop), por construção: uma cópia invisível da última pílula ocupa as
+            duas colunas max-content do fim, e o grid divide a largura dela igualmente entre as duas.
+            A linha ocupa a 1ª e a 2ª coluna, então termina exatamente no centro da pílula.
           */}
           <span
             ref={bandRef}
             aria-hidden="true"
-            className="absolute inset-x-0 top-0 hidden h-14 items-center lg:flex"
+            className="absolute inset-x-0 top-0 hidden h-14 grid-cols-[1fr_max-content_max-content] items-center lg:grid"
           >
             <span
               ref={lineRef}
-              className="h-0.5 flex-1 track-line-motion rounded-pill bg-line-strong"
+              className="col-start-1 col-end-3 row-start-1 h-0.5 track-line-motion rounded-pill bg-line-strong"
             />
-            <Badge variant="outline" className="invisible">
-              {REPEAT_LABEL}
+            <Badge className="invisible col-start-2 col-end-4 row-start-1">
+              {lastPill}
             </Badge>
           </span>
           {PROCESS_STEPS.map((step, index) => {
@@ -52,12 +56,14 @@ export function Process() {
             return (
               <li
                 key={step.title}
-                data-track-segment={isLast ? undefined : ''}
+                data-track-segment=""
                 className={cn(
-                  'relative grid grid-cols-[auto_1fr] gap-x-4 lg:block',
-                  // trilho vertical (mobile): do centro do círculo ao fim do item; um segmento da linha
-                  !isLast &&
-                    'track-segment-motion-mobile before:absolute before:top-5 before:bottom-0 before:left-4.75 before:w-0.5 before:bg-line-strong before:content-[""] lg:before:hidden',
+                  'relative grid track-segment-motion-mobile grid-cols-[auto_1fr] gap-x-4 before:absolute before:top-5 before:left-4.75 before:w-0.5 before:bg-line-strong before:content-[""] lg:block lg:before:hidden',
+                  // trilho vertical (mobile): do centro do círculo ao fim do item; no último, até o
+                  // centro da pílula final (--track-end-mobile)
+                  isLast
+                    ? 'before:bottom-(--track-end-mobile)'
+                    : 'before:bottom-0',
                 )}
               >
                 {/*
@@ -79,67 +85,35 @@ export function Process() {
                   >
                     {index + 1}
                   </span>
-                  {/* selo no ponto médio entre este círculo e o próximo (desktop) */}
-                  {!isLast && (
-                    <span
-                      data-track-anchor
-                      className="absolute top-3.5 left-(--seal-mid) hidden -translate-x-1/2 lg:block"
-                    >
-                      <Badge className="track-seal-motion">seu ok</Badge>
-                    </span>
-                  )}
-                  {isLast && (
-                    <span
-                      data-track-anchor
-                      className="top-3.125 absolute right-0 hidden lg:block"
-                    >
-                      <Badge variant="outline" className="track-seal-motion">
-                        {REPEAT_LABEL}
-                      </Badge>
-                    </span>
-                  )}
+                  {/* pílula (desktop): 1–3 pela borda esquerda em círculo + 140; a última presa à direita */}
+                  <span
+                    data-track-anchor
+                    className={cn(
+                      'absolute top-3.5 hidden lg:block',
+                      isLast ? 'right-0' : 'left-(--seal-left)',
+                    )}
+                  >
+                    <Badge className="track-seal-motion">{step.pill}</Badge>
+                  </span>
                 </div>
 
-                <div
-                  className={cn(
-                    'flex flex-col gap-2 pt-1.5 lg:mt-8 lg:gap-2.5 lg:p-0',
-                    !isLast && 'pb-2',
-                  )}
-                >
+                <div className="flex flex-col gap-2 pt-1.5 lg:mt-8 lg:gap-2.5 lg:p-0">
                   <h3 className="type-heading-mobile text-ink lg:type-heading">
                     {step.title}
                   </h3>
                   <p className="type-body text-ink-muted">{step.description}</p>
-                  <div className="flex flex-col gap-1 pt-1.5 lg:pt-2.5">
-                    <span className="type-label text-sage">Você recebe</span>
-                    <span className="type-title text-mint">{step.receive}</span>
-                  </div>
-                  {isLast && (
-                    <div
-                      data-track-anchor-mobile="seal"
-                      className="pt-2 lg:hidden"
-                    >
-                      <Badge
-                        variant="outline"
-                        size="sm"
-                        className="track-seal-motion-mobile"
-                      >
-                        Repete todo mês
-                      </Badge>
-                    </div>
-                  )}
                 </div>
 
-                {!isLast && (
-                  <div
-                    data-track-anchor-mobile="seal"
-                    className="relative z-10 col-span-2 py-5 lg:hidden"
-                  >
-                    <Badge size="sm" className="track-seal-motion-mobile">
-                      seu ok
-                    </Badge>
-                  </div>
-                )}
+                {/* pílula (mobile): sobre a linha, depois da etapa; na última a linha termina no centro dela */}
+                <div
+                  data-track-anchor-mobile="seal"
+                  data-track-end-mobile={isLast ? '' : undefined}
+                  className="relative z-10 col-span-2 py-5 lg:hidden"
+                >
+                  <Badge size="sm" className="track-seal-motion-mobile">
+                    {step.pill}
+                  </Badge>
+                </div>
               </li>
             )
           })}
