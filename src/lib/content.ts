@@ -146,3 +146,26 @@ export const CHAT: Array<{ from: 'client' | 'amplyon'; text: string }> = [
 ]
 
 export const FOOTER_TEXT = '© 2026 Amplyon. Sites, sistemas e tráfego pago.'
+
+export const RESULTS_LOGOS_TITLE = 'Empresas que já atendemos'
+
+/** Arquivos em public/clientes/. Ordem do Figma. */
+export const CLIENT_LOGOS: Array<{ name: string; file: string }> = [
+  { name: 'Saccaro', file: 'saccaro.png' },
+  { name: 'Essenburg', file: 'essenburg.png' },
+  { name: 'Instituto Mix', file: 'instituto-mix.png' },
+  { name: 'Gardner', file: 'gardner.png' },
+  { name: 'Takuara', file: 'takuara.png' },
+  { name: 'Uninter', file: 'uninter.png' },
+  // provisório: marca "B" verde, nome do cliente ainda não definido
+  { name: 'Cliente', file: 'cliente-b.png' },
+  { name: 'Massaviva', file: 'massaviva.png' },
+]
+
+/** O "+" é renderizado à parte, na cor amp. */
+export const RESULTS_STATS: Array<{ value: string; label: string }> = [
+  { value: '7', label: 'anos de atuação' },
+  { value: '50', label: 'clientes' },
+  { value: 'R$ 500.000', label: 'gerenciados' },
+  { value: 'R$ 1.650.000', label: 'faturados' },
+]

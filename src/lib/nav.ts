@@ -1,6 +1,7 @@
 export type NavItem = { label: string; id: string }
 
 export const SECTION_IDS = {
+  results: 'resultados',
   services: 'servicos',
   process: 'como-trabalhamos',
   differentials: 'diferenciais',

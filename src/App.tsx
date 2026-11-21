@@ -5,6 +5,7 @@ import { Contact } from '@/sections/Contact'
 import { Differentials } from '@/sections/Differentials'
 import { Hero } from '@/sections/Hero'
 import { Process } from '@/sections/Process'
+import { Results } from '@/sections/Results'
 import { Services } from '@/sections/Services'
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
       />
       <main id="conteudo" tabIndex={-1} inert={menuOpen}>
         <Hero />
+        <Results />
         <Services />
         <Process />
         <Differentials />
