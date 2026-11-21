@@ -50,6 +50,12 @@
   --radius-bubble: 18px;
   --radius-tail: 4px;
   --radius-bar-mobile: 12px;
+  /* cards dos sócios e o espaço da foto (Figma 131:82 / 131:101) */
+  --radius-card: 16px;
+  --radius-photo: 12px;
+
+  /* área de atuação dos sócios: DM Mono 12 com 1.2px (type-label usa 0.08em) */
+  --tracking-role: 0.1em;
 
   /* telas muito estreitas: abaixo disso o botão "Orçamento" sai da barra (continua no menu) */
   --breakpoint-xs: 22.5rem;
@@ -179,6 +185,11 @@
   --logo-fade-mobile: 48px;
   --logo-fade-desktop: 160px;
   --stat-divider-w-mobile: 120px;
+
+  /* Sócios: espaço da foto (desktop 208 x 260 à esquerda; mobile largura total x 340 em cima) */
+  --partner-photo-w: 208px;
+  --partner-photo-h: 260px;
+  --partner-photo-h-mobile: 340px;
 
   /* Proporção das barras da escada mobile (largura / altura); a desktop é um SVG em viewBox 1162 x 320 */
   --stair-ratio-m-1: 91.5 / 60;

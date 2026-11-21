@@ -5,6 +5,7 @@ export const SECTION_IDS = {
   services: 'servicos',
   process: 'como-trabalhamos',
   differentials: 'diferenciais',
+  partners: 'quem-somos',
   contact: 'contato',
 } as const
 

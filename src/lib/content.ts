@@ -169,3 +169,35 @@ export const RESULTS_STATS: Array<{ value: string; label: string }> = [
   { value: 'R$ 500.000', label: 'gerenciados' },
   { value: 'R$ 1.650.000', label: 'faturados' },
 ]
+
+export const PARTNERS_INTRO = {
+  title: 'Quem está do outro lado',
+  description:
+    'Somos dois sócios. Cada um cuida de uma parte do crescimento da sua empresa, e você fala direto com a gente.',
+}
+
+/**
+ * Foto: salvar em public/socios/<id>.jpg e preencher `photo: 'socios/<id>.jpg'`
+ * (o componente prefixa com import.meta.env.BASE_URL). A img usa alt="", porque o
+ * nome do sócio já está no h3 ao lado. Sem `photo`, o espaço fica vazio.
+ */
+export const PARTNERS: Array<{
+  id: 'vladimir' | 'ricky'
+  name: string
+  role: string
+  bio: string
+  photo?: string
+}> = [
+  {
+    id: 'vladimir',
+    name: 'Vladimir',
+    role: 'Sites, sistemas e IA',
+    bio: 'Desenvolvedor de software. Especialista em design de sites, desenvolvimento de sistemas e inteligência artificial.',
+  },
+  {
+    id: 'ricky',
+    name: 'Ricky',
+    role: 'Tráfego e vendas',
+    bio: 'Gestor de tráfego. Especialista em tráfego, marketing comercial e anúncios.',
+  },
+]

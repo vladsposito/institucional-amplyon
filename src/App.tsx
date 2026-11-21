@@ -4,6 +4,7 @@ import { Header } from '@/components/Header'
 import { Contact } from '@/sections/Contact'
 import { Differentials } from '@/sections/Differentials'
 import { Hero } from '@/sections/Hero'
+import { Partners } from '@/sections/Partners'
 import { Process } from '@/sections/Process'
 import { Results } from '@/sections/Results'
 import { Services } from '@/sections/Services'
@@ -31,6 +32,7 @@ function App() {
         <Services />
         <Process />
         <Differentials />
+        <Partners />
         <Contact />
       </main>
       <Footer inert={menuOpen} />
