@@ -1,55 +1,34 @@
-export type ServiceItem = { title: string; description: string }
+export const SERVICES_TITLE = 'Quatro jeitos de fazer sua empresa vender mais.'
 
-export const SERVICES_INTRO = {
-  title: 'Dois ofícios, um time só',
-  description:
-    'Site bonito sem visita não vende. Anúncio bom apontando para página ruim queima verba. Por isso a gente cuida das duas pontas.',
-  footnote:
-    'Dá para contratar só um lado. Quando os dois andam juntos, a página já nasce pronta para receber anúncio.',
-}
-
-export const SERVICE_GROUPS: Array<{ label: string; items: ServiceItem[] }> = [
+/** Ordem do Figma; o número (01–04) sai do índice. */
+export const SERVICES: Array<{ title: string; description: string }> = [
   {
-    label: 'Do lado do código',
-    items: [
-      {
-        title: 'Sites institucionais',
-        description:
-          'Seu negócio explicado com clareza, rápido no celular e fácil de achar no Google.',
-      },
-      {
-        title: 'Landing pages',
-        description:
-          'Uma página, uma oferta, um objetivo. Feita para o clique do anúncio virar contato.',
-      },
-      {
-        title: 'Sistemas sob medida',
-        description:
-          'Painéis, áreas de cliente e automações para o processo que a planilha já não resolve.',
-      },
-    ],
+    title: 'Anúncio no Google e no Instagram',
+    description:
+      'Cliente novo chamando no seu WhatsApp todo dia. Chega de esperar indicação e de olhar pra agenda vazia.',
   },
   {
-    label: 'Do lado do anúncio',
-    items: [
-      {
-        title: 'Google Ads',
-        description:
-          'Para aparecer na hora em que o cliente já está procurando o que você vende.',
-      },
-      {
-        title: 'Meta Ads',
-        description:
-          'Para chegar em quem ainda não conhece você, no Instagram e no Facebook.',
-      },
-      {
-        title: 'Mensuração e relatório',
-        description:
-          'Pixel, eventos e conversões instalados. Todo mês, um relatório que você entende.',
-      },
-    ],
+    title: 'IA de atendimento',
+    description:
+      'Seu cliente chama às 22h e é atendido na hora, com a resposta certa. Não é robô travado. É venda que esfriava e agora fecha antes do seu concorrente.',
+  },
+  {
+    title: 'Sistema feito pra sua empresa',
+    description:
+      'Acabou planilha, caderninho e bagunça. Sua empresa organizada, sem retrabalho e sem dinheiro escapando pelo ralo.',
+  },
+  {
+    title: 'Site que vende',
+    description:
+      'Seu cliente pesquisa sua empresa, entra no site e confia. Chega de site que espanta cliente e faz sua empresa parecer pequena.',
   },
 ]
+
+/** Fechamento: `lead` em cor suave, `highlight` em amp. */
+export const SERVICES_CLOSING = {
+  lead: 'Cada um já muda o resultado da sua empresa.',
+  highlight: 'Juntos, ela vende como nunca vendeu.',
+}
 
 export const PROCESS_INTRO = {
   title: 'Como um projeto anda por aqui',

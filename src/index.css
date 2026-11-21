@@ -124,6 +124,21 @@
   --text-logo-sm: 0.99025rem;
   --text-logo-sm--line-height: 1;
   --text-logo-sm--letter-spacing: -0.02em;
+  /* Serviços (Figma 71:74 / 71:277): número do card, título do card e frase de fechamento */
+  --text-service-number: 3.5rem;
+  --text-service-number--line-height: 1;
+  --text-service-number--letter-spacing: -0.03em;
+  --text-service-number-mobile: 2.5rem;
+  --text-service-number-mobile--line-height: 1;
+  --text-service-number-mobile--letter-spacing: -0.03em;
+  --text-service-title: 1.75rem;
+  --text-service-title--line-height: 1.15;
+  --text-service-title-mobile: 1.5rem;
+  --text-service-title-mobile--line-height: 1.15;
+  --text-services-closing: 1.75rem;
+  --text-services-closing--line-height: 1.25;
+  --text-services-closing-mobile: 1.375rem;
+  --text-services-closing-mobile--line-height: 1.25;
   /* números da seção Resultados (Bricolage ExtraBold 40/44) */
   --text-stat: 2.5rem;
   --text-stat--line-height: 2.75rem;
@@ -185,6 +200,10 @@
   --logo-fade-mobile: 48px;
   --logo-fade-desktop: 160px;
   --stat-divider-w-mobile: 120px;
+
+  /* Serviços: número com largura fixa (títulos alinhados) e altura mínima do card no desktop */
+  --service-number-w: 84px;
+  --service-card-min-h: 230px;
 
   /* Sócios: espaço da foto (desktop 208 x 260 à esquerda; mobile largura total x 340 em cima) */
   --partner-photo-w: 208px;
@@ -444,6 +463,24 @@
 }
 @utility type-metric {
   @apply font-mono text-metric font-medium;
+}
+@utility type-service-number {
+  @apply font-display text-service-number font-extrabold;
+}
+@utility type-service-number-mobile {
+  @apply font-display text-service-number-mobile font-extrabold;
+}
+@utility type-service-title {
+  @apply font-display text-service-title font-bold;
+}
+@utility type-service-title-mobile {
+  @apply font-display text-service-title-mobile font-bold;
+}
+@utility type-services-closing {
+  @apply font-display text-services-closing font-bold;
+}
+@utility type-services-closing-mobile {
+  @apply font-display text-services-closing-mobile font-bold;
 }
 @utility type-stat {
   @apply font-display text-stat font-extrabold;

@@ -1,23 +1,12 @@
 import { Container } from '@/components/Container'
 import { SectionHeading } from '@/components/SectionHeading'
+import { SERVICES, SERVICES_CLOSING, SERVICES_TITLE } from '@/lib/content'
 import { SECTION_IDS } from '@/lib/nav'
-import { SERVICES_INTRO, SERVICE_GROUPS } from '@/lib/content'
-import { cn } from '@/lib/cn'
 
-function PlusMark({ className }: { className: string }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        'absolute z-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-pill bg-amp text-on-amp',
-        className,
-      )}
-    >
-      +
-    </span>
-  )
-}
-
+/**
+ * Serviços: 4 cards numerados de mesmo peso. Desktop: grade 2x2 com linhas iguais (auto-rows-fr)
+ * e número com largura fixa (títulos alinhados). Mobile: empilhados, número em cima.
+ */
 export function Services() {
   return (
     <section
@@ -28,55 +17,41 @@ export function Services() {
       <Container>
         <SectionHeading
           id="services-title"
-          title={SERVICES_INTRO.title}
-          description={SERVICES_INTRO.description}
+          title={SERVICES_TITLE}
+          widthClassName="max-w-190"
         />
 
-        <div className="relative mt-8 grid gap-4 lg:mt-14 lg:grid-cols-2 lg:items-start">
-          {SERVICE_GROUPS.map((group, index) => {
-            const isCode = index === 0
-            return (
-              <div
-                key={group.label}
-                className={cn(
-                  'relative flex flex-col gap-1 rounded-md px-6 pt-6 pb-3 lg:gap-2 lg:p-12',
-                  isCode
-                    ? 'bg-teal text-ink lg:mb-16'
-                    : 'bg-mint text-on-amp lg:mt-16',
-                )}
+        {/* role="list": o preflight tira o list-style e o VoiceOver/Safari deixaria de anunciar a lista. */}
+        <ol
+          role="list"
+          className="mt-8 flex flex-col gap-4 lg:mt-14 lg:grid lg:auto-rows-fr lg:grid-cols-2"
+        >
+          {SERVICES.map((service, index) => (
+            <li
+              key={service.title}
+              className="flex flex-col gap-4 rounded-card border border-line bg-surface p-6 lg:min-h-(--service-card-min-h) lg:flex-row lg:gap-8 lg:p-10"
+            >
+              <span
+                aria-hidden="true"
+                className="type-service-number-mobile text-amp lg:w-(--service-number-w) lg:shrink-0 lg:type-service-number"
               >
-                {!isCode && (
-                  <PlusMark className="-top-2 left-1/2 grid size-16 type-display-mobile lg:hidden" />
-                )}
-                <h3 className={cn('type-label', !isCode && 'text-pine')}>
-                  {group.label}
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <div className="flex min-w-0 flex-col gap-3 lg:flex-1">
+                <h3 className="type-service-title-mobile text-ink lg:type-service-title">
+                  {service.title}
                 </h3>
-                <ul className="flex flex-col gap-1 lg:gap-2">
-                  {group.items.map((item, itemIndex) => (
-                    <li
-                      key={item.title}
-                      className={cn(
-                        'flex flex-col gap-1.5 py-4 lg:py-5',
-                        itemIndex > 0 && 'border-t border-sage',
-                      )}
-                    >
-                      <p className="type-heading-mobile lg:type-heading">
-                        {item.title}
-                      </p>
-                      <p className="type-body lg:max-w-100">
-                        {item.description}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
+                <p className="type-body text-ink-muted">
+                  {service.description}
+                </p>
               </div>
-            )
-          })}
-          <PlusMark className="top-1/2 left-1/2 hidden size-21 type-display lg:grid" />
-        </div>
+            </li>
+          ))}
+        </ol>
 
-        <p className="mt-8 max-w-130 type-body text-ink-muted lg:mt-14">
-          {SERVICES_INTRO.footnote}
+        <p className="mt-8 max-w-205 type-services-closing-mobile text-ink-muted lg:mt-14 lg:type-services-closing">
+          {SERVICES_CLOSING.lead}{' '}
+          <span className="text-amp">{SERVICES_CLOSING.highlight}</span>
         </p>
       </Container>
     </section>
